@@ -176,6 +176,7 @@ void Renderer::EndFrame()
 
 void Renderer::Render()
 {
+  glDisable(GL_DEPTH_TEST);
   glUseProgram(_program);
   glUniform1f(glGetUniformLocation(_program, "pxRange"), 2.0f);
   glUniformMatrix4fv(glGetUniformLocation(_program, "projection"), 1, GL_FALSE, &_ortho[0][0]);
