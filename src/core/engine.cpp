@@ -52,7 +52,7 @@ bool Engine::init() {
     return false;
 
   Font font = CreateFont("roboto");
-  FontMesh mesh = GenerateFontMesh("Bonjour\n Je m'appelle Gaël.", font, 100.0f, 100.0f, 10.0f);
+  FontMesh mesh = GenerateFontMesh("Bonjour\n Je m'appelle Gael.", font, 100.0f, 100.0f, 10.0f);
   auto e = _pRegistry->create();
   _pRegistry->emplace<Font>(e, font);
   _pRegistry->emplace<FontMesh>(e, mesh);

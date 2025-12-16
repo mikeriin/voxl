@@ -116,7 +116,7 @@ void Renderer::UpdateFont()
   {
     int logLength;
     glGetShaderiv(vert, GL_INFO_LOG_LENGTH, &logLength);
-    std::vector<char> infoLog;
+    std::vector<char> infoLog(logLength);
     glGetShaderInfoLog(vert, logLength, &logLength, infoLog.data());
     std::cout << "[Renderer] Failed to compile vertex shader: " << infoLog.data() << "\n";
   }
@@ -132,7 +132,7 @@ void Renderer::UpdateFont()
   {
     int logLength;
     glGetShaderiv(frag, GL_INFO_LOG_LENGTH, &logLength);
-    std::vector<char> infoLog;
+    std::vector<char> infoLog(logLength);
     glGetShaderInfoLog(frag, logLength, &logLength, infoLog.data());
     std::cout << "[Renderer] Failed to compile fragment shader: " << infoLog.data() << "\n";
   }
@@ -147,13 +147,13 @@ void Renderer::UpdateFont()
   {
     int logLength;
     glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &logLength);
-    std::vector<char> infoLog;
+    std::vector<char> infoLog(logLength);
     glGetProgramInfoLog(_program, logLength, &logLength, infoLog.data());
     std::cout << "[Renderer] Failed to link program: " << infoLog.data() << "\n";
   }
 
   auto& gameCtx = _pRegistry->ctx().get<GameContext>();
-  _ortho = glm::ortho(0, gameCtx.screenInfo.width, gameCtx.screenInfo.height, 0, -1, 1);
+  _ortho = glm::ortho(0.0f, (float)gameCtx.screenInfo.width, (float)gameCtx.screenInfo.height, 0.0f, -1.0f, 1.0f);
 }
 
 
@@ -180,8 +180,9 @@ void Renderer::Render()
   glUseProgram(_program);
   glUniform1f(glGetUniformLocation(_program, "pxRange"), 2.0f);
   glUniformMatrix4fv(glGetUniformLocation(_program, "projection"), 1, GL_FALSE, &_ortho[0][0]);
-
-  _pRegistry->view<Font, FontMesh>().each([](Font& font, FontMesh& mesh){
+  
+  _pRegistry->view<Font, FontMesh>().each([this](Font& font, FontMesh& mesh){
+    glUniform1i(glGetUniformLocation(_program, "msdfTex"), font.texID);
     glBindTextureUnit(0, font.texID);
     glBindVertexArray(mesh.vao);
     glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, nullptr);
@@ -195,5 +196,5 @@ void Renderer::onResize(const ResizeEvent& e)
   int height = e.height;
   std::cout << "[Renderer] " << e.name << "[" << width << ", " << height << "]" << " called\n";
   glViewport(0, 0, width, height);
-  _ortho = glm::ortho(0, width, height, 0, -1, 1);
+  _ortho = glm::ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
 }

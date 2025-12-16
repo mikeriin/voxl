@@ -37,7 +37,8 @@ inline Font CreateFont(const std::string& fontName)
 
   glCreateTextures(GL_TEXTURE_2D, 1, &font.texID);
   glTextureStorage2D(font.texID, 1, GL_RGB8, width, height); // alloc mémoire GPU
-  glTextureSubImage2D(font.texID, 1, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels); // upload des données
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1); 
+  glTextureSubImage2D(font.texID, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels); // upload des données
 
   glTextureParameteri(font.texID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTextureParameteri(font.texID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
