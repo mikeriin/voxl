@@ -1,0 +1,12 @@
+{
+  "name": "voxl",
+  "version-string": "0.0.1",
+  "dependencies": [
+    "sdl3",
+    "glad",
+    "glm",
+    "entt",
+    "enkits",
+    "nlohmann-json"
+  ]
+}

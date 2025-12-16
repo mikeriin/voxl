@@ -1,0 +1,18 @@
+{
+  "cmake.configureSettings": {
+    "CMAKE_TOOLCHAIN_FILE": "E:/vcpkg/scripts/buildsystems/vcpkg.cmake",
+    "VCPKG_TARGET_TRIPLET": "x64-windows"
+  },
+  "clangd.arguments": [
+    "--compile-commands-dir=${workspaceFolder}/build",
+    "--background-index",
+    "--clang-tidy"
+  ],
+  "files.associations": {
+    "*.frag": "glsl",
+    "*.vert": "glsl",
+    "*.vs": "glsl",
+    "*.fs": "glsl"
+  },
+  "editor.tabSize": 2
+}

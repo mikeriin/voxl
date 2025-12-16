@@ -1,0 +1,143 @@
+#include "platform/window.h"
+
+
+#include <SDL3/SDL_keycode.h>
+#include <iostream>
+#include <memory>
+
+#include <SDL3/SDL_video.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_init.h>
+#include <SDL3/SDL_error.h>
+
+#include "core/game_context.h"
+#include "events/close_event.h"
+#include "events/resize_event.h"
+
+
+Window::Window(entt::registry* registry)
+  : _pRegistry(registry)
+{}
+
+
+Window::~Window()
+{
+  SDL_Quit();
+}
+
+
+bool Window::Init()
+{
+  auto& gameCtx = _pRegistry->ctx().get<GameContext>();
+
+  if (!SDL_Init(SDL_INIT_VIDEO))
+  {
+    std::cerr << "[Window] Failed to init SDL3: " << SDL_GetError() << "\n";
+    return false;
+  }
+
+  const char* WINDOW_NAME = "widnow";
+  const int WINDOW_WIDTH = 1280;
+  const int WINDOW_HEIGHT = 720;
+  const unsigned int WINDOW_FLAGS = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+
+  _pNativeWindow = std::shared_ptr<SDL_Window>(
+    SDL_CreateWindow(WINDOW_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_FLAGS),
+    SDL_DestroyWindow
+  );
+  if (!_pNativeWindow)
+  {
+    std::cout << "[Window] Failed to create SDL_Window: " << SDL_GetError() << "\n";
+    return false;
+  }
+
+  resize(WINDOW_WIDTH, WINDOW_HEIGHT);
+  auto& screenInfo = gameCtx.screenInfo;
+  screenInfo.isFocused = false;
+  screenInfo.isFullScreen = false;
+  screenInfo.isMinimized = false;
+  screenInfo.cursorMode = CursorMode::NORMAL;
+
+  return true;
+}
+
+void Window::PollEvent()
+{
+  auto& gameCtx = _pRegistry->ctx().get<GameContext>();
+
+  gameCtx.inputHandler.BeginFrame();
+
+  SDL_Event e;
+  while (SDL_PollEvent(&e)) 
+  {
+    gameCtx.inputHandler.ProcessEvent(e);
+
+    switch (e.type)
+    {
+      case SDL_EVENT_QUIT:
+        gameCtx.dispatcher.enqueue<CloseEvent>({.shoulClose = true});
+      break;
+        
+      case SDL_EVENT_WINDOW_RESIZED:
+      {
+        int width = e.window.data1;
+        int height = e.window.data2;
+        resize(width, height);
+        gameCtx.dispatcher.enqueue<ResizeEvent>({.width = width, .height = height});
+      break;
+      }
+
+      case SDL_EVENT_WINDOW_FOCUS_LOST:
+        gameCtx.screenInfo.isFocused = false;
+      break;
+
+      case SDL_EVENT_WINDOW_FOCUS_GAINED:
+        gameCtx.screenInfo.isFocused = true;
+      break;
+
+      case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
+        gameCtx.screenInfo.isFullScreen = false;
+      break;
+
+      case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
+        gameCtx.screenInfo.isFullScreen = true;
+      break;
+
+      case SDL_EVENT_WINDOW_MINIMIZED:
+        gameCtx.screenInfo.isMinimized = true;
+      break;
+
+      case SDL_EVENT_WINDOW_RESTORED:
+        gameCtx.screenInfo.isMinimized = false;
+      break;
+    }
+  }
+
+  if (gameCtx.inputHandler.IsKeyPressed(SDLK_F11))
+  {
+    SDL_SetWindowFullscreen(_pNativeWindow.get(), !gameCtx.screenInfo.isFullScreen);
+  }
+}
+
+
+void Window::SwapBuffers()
+{
+  SDL_GL_SwapWindow(GetNativeWindow());
+}
+
+
+SDL_Window* Window::GetNativeWindow()
+{
+  return _pNativeWindow.get();
+}
+
+
+void Window::resize(int width, int height)
+{
+  auto& screenInfo = _pRegistry->ctx().get<GameContext>().screenInfo;
+  screenInfo.width = width;
+  screenInfo.height = height;
+  screenInfo.aspectRatio = (height > 0) ? (float)width / (float)height : 1.0f;
+  screenInfo.halfWidth = (float)width * 0.5f;
+  screenInfo.halfHeight = (float)height * 0.5f;
+}

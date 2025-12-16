@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "voxlD",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/VoxL.exe", 
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "env": {
+          "PATH": "${workspaceFolder}/build/vcpkg_installed/x64-windows/bin;${env:PATH}"
+      },
+      "preLaunchTask": "CMake: build"
+    }
+  ]
+}

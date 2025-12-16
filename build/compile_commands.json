@@ -1,0 +1,32 @@
+[
+{
+  "directory": "E:/Projects/VoxL/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DENKITS_DLL=1 -DENKITS_TASK_PRIORITIES_NUM=3 -IE:/Projects/VoxL/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include/enkiTS -O0 -g -Xclang -gcodeview -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\voxl.dir\\src\\core\\engine.cpp.obj -c E:\\Projects\\VoxL\\src\\core\\engine.cpp",
+  "file": "E:/Projects/VoxL/src/core/engine.cpp",
+  "output": "E:/Projects/VoxL/build/CMakeFiles/voxl.dir/src/core/engine.cpp.obj"
+},
+{
+  "directory": "E:/Projects/VoxL/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DENKITS_DLL=1 -DENKITS_TASK_PRIORITIES_NUM=3 -IE:/Projects/VoxL/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include/enkiTS -O0 -g -Xclang -gcodeview -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\voxl.dir\\src\\graphics\\renderer.cpp.obj -c E:\\Projects\\VoxL\\src\\graphics\\renderer.cpp",
+  "file": "E:/Projects/VoxL/src/graphics/renderer.cpp",
+  "output": "E:/Projects/VoxL/build/CMakeFiles/voxl.dir/src/graphics/renderer.cpp.obj"
+},
+{
+  "directory": "E:/Projects/VoxL/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DENKITS_DLL=1 -DENKITS_TASK_PRIORITIES_NUM=3 -IE:/Projects/VoxL/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include/enkiTS -O0 -g -Xclang -gcodeview -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\voxl.dir\\src\\platform\\input_handler.cpp.obj -c E:\\Projects\\VoxL\\src\\platform\\input_handler.cpp",
+  "file": "E:/Projects/VoxL/src/platform/input_handler.cpp",
+  "output": "E:/Projects/VoxL/build/CMakeFiles/voxl.dir/src/platform/input_handler.cpp.obj"
+},
+{
+  "directory": "E:/Projects/VoxL/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DENKITS_DLL=1 -DENKITS_TASK_PRIORITIES_NUM=3 -IE:/Projects/VoxL/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include/enkiTS -O0 -g -Xclang -gcodeview -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\voxl.dir\\src\\platform\\window.cpp.obj -c E:\\Projects\\VoxL\\src\\platform\\window.cpp",
+  "file": "E:/Projects/VoxL/src/platform/window.cpp",
+  "output": "E:/Projects/VoxL/build/CMakeFiles/voxl.dir/src/platform/window.cpp.obj"
+},
+{
+  "directory": "E:/Projects/VoxL/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DENKITS_DLL=1 -DENKITS_TASK_PRIORITIES_NUM=3 -IE:/Projects/VoxL/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include/enkiTS -O0 -g -Xclang -gcodeview -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\voxl.dir\\main.cpp.obj -c E:\\Projects\\VoxL\\main.cpp",
+  "file": "E:/Projects/VoxL/main.cpp",
+  "output": "E:/Projects/VoxL/build/CMakeFiles/voxl.dir/main.cpp.obj"
+}
+]

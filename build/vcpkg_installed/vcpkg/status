@@ -1,0 +1,95 @@
+Package: vcpkg-cmake-config
+Version: 2024-05-23
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 3d7b72d519b7e217594dc407cf2d507a09d491f0d2f25c64e1d5fe25cbd573b6
+Status: install ok installed
+
+Package: vcpkg-cmake
+Version: 2024-04-23
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 0df6a8d35f535684ca7357204478c88f9f0785f516bc2ee3d500294336ff45d8
+Status: install ok installed
+
+Package: sdl3
+Version: 3.2.28
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 5e442f39c62be31f906184f08db7ffcdade07e5f377674e2faac176bdf43cf7a
+Description: Simple DirectMedia Layer is a cross-platform development library designed to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware via OpenGL and Direct3D.
+Status: install ok installed
+
+Package: egl-registry
+Version: 2025-05-27
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 6cd39962ecf39a3f78271e94c5cb755a73a6e3b9559549a1080df4d42e7983cd
+Description: EGL API and Extension Registry
+Status: install ok installed
+
+Package: opengl-registry
+Version: 2025-10-23
+Depends: egl-registry
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 3879682ce10bc29545cf0b772cf693a901d59150f05fa9bc9a269e1ae12974f1
+Description: OpenGL, OpenGL ES, and OpenGL ES-SC API and Extension Registry
+Status: install ok installed
+
+Package: glad
+Version: 0.1.36
+Depends: egl-registry, opengl-registry, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 110e970d4357453d9086173031418813e0e7fc665af8aed7055e52907271011c
+Description: Multi-Language Vulkan/GL/GLES/EGL/GLX/WGL Loader-Generator based on the official specs.
+Default-Features: loader
+Status: install ok installed
+
+Package: glad
+Feature: loader
+Architecture: x64-windows
+Multi-Arch: same
+Description: Generate loader logic.
+Status: install ok installed
+
+Package: glm
+Version: 1.0.2
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 25204bb014cb26c0555ec3780f924e73894c934b253f69838cca60235f7a54b6
+Description: OpenGL Mathematics (GLM)
+Status: install ok installed
+
+Package: entt
+Version: 3.16.0
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 24740d9424d1994a9df4a604fc7c9f48bd44176f4e0e2be96c19b297830d1ace
+Description: Gaming meets modern C++ - a fast and reliable entity-component system and much more
+Status: install ok installed
+
+Package: enkits
+Version: 1.11
+Port-Version: 3
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: dfb5f68c0c4bbaba94d6995fef3cc37432b55a4ec32a5a44e7ef0b261374f665
+Description: A permissively licensed C and C++ Task Scheduler for creating parallel programs.
+Status: install ok installed
+
+Package: nlohmann-json
+Version: 3.12.0
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: f16fcc5d47ae4871afa1cb9aa0f4d84089f334a7f477b493b556d5df43762b0b
+Description: JSON for Modern C++
+Status: install ok installed
+
