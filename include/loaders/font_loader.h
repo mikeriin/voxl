@@ -53,13 +53,6 @@ inline Font LoadFont(const std::string& fontName)
         (float)atlasBounds["right"] / atlasWidth, 
         (float)atlasBounds["top"] / atlasHeight
       );
-
-      // g.atlasBounds = glm::vec4(
-      //   atlasBounds["left"], 
-      //   atlasBounds["bottom"], 
-      //   atlasBounds["right"], 
-      //   atlasBounds["top"]
-      // );
     }
     else 
     {

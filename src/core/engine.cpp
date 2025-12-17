@@ -55,12 +55,12 @@ bool Engine::init() {
     return false;
 
 
-  _font = LoadFont("roboto");
+  _font = LoadFont("roboto_mono");
 
   Text t{
-    .text = "Hello, World!\nlorem ipsum$",
+    .text = "Hello, World!\n@#&!$*%^§+=?[]{}<>~€",
     .pFont = &_font,
-    .fontSize = 100,
+    .fontSize = 50,
     .position = {100.0f, 200.0f, 0.0f},
     .color = {1.0f, 1.0f, 1.0f, 1.0f}
   };

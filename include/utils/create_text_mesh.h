@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <iostream>
 
+
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
@@ -13,6 +14,7 @@
 #include "components/text_mesh.h"
 #include "resources/font.h"
 #include "utils/glyph.h"
+#include "utils/next_utf8.h"
 
 
 inline TextMesh CreateTextMesh(const Text& text)
@@ -24,8 +26,12 @@ inline TextMesh CreateTextMesh(const Text& text)
   float cursorX = text.position.x;
   float cursorY = text.position.y;
 
-  for (uint32_t c: text.text)
+
+
+  for (size_t i = 0; i < text.text.length(); )
   {
+    uint32_t c = NextUTF8(text.text, i);
+
     auto it = text.pFont->glyphs.find(c);
     if (it == text.pFont->glyphs.end())
     {
