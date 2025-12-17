@@ -1,18 +1,18 @@
 #include "core/engine.h"
-#include "components/font_mesh.h"
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <SDL3/SDL_keycode.h>
 #include <iostream>
 #include <memory>
 
-#include "components/font.h"
 #include "core/game_context.h"
 #include "events/close_event.h"
 #include "graphics/renderer.h"
 #include "platform/window.h"
-#include "utils/create_font.h"
-#include "utils/generate_font_mesh.h"
+#include "loaders/font_loader.h"
+#include "components/text.h"
+#include "components/text_mesh.h"
+#include "utils/create_text_mesh.h"
 
 
 Engine::Engine() : _isRunning(true) {
@@ -25,7 +25,10 @@ Engine::Engine() : _isRunning(true) {
   _pRenderer = std::make_unique<Renderer>(_pRegistry.get(), _pWindow.get());
 }
 
-Engine::~Engine() = default;
+Engine::~Engine() 
+{
+  glDeleteTextures(1, &_font.textureHandle);
+}
 
 void Engine::Run() {
   auto &gameCtx = _pRegistry->ctx().get<GameContext>();
@@ -51,11 +54,22 @@ bool Engine::init() {
   if (!_pRenderer->Init())
     return false;
 
-  Font font = CreateFont("roboto");
-  FontMesh mesh = GenerateFontMesh("Bonjour\n Je m'appelle Gael.", font, 100.0f, 100.0f, 10.0f);
+
+  _font = LoadFont("roboto");
+
+  Text t{
+    .text = "Hello, World!\nlorem ipsum$",
+    .pFont = &_font,
+    .fontSize = 100,
+    .position = {100.0f, 200.0f, 0.0f},
+    .color = {1.0f, 1.0f, 1.0f, 1.0f}
+  };
+  auto mesh = CreateTextMesh(t);
+
   auto e = _pRegistry->create();
-  _pRegistry->emplace<Font>(e, font);
-  _pRegistry->emplace<FontMesh>(e, mesh);
+  _pRegistry->emplace<Text>(e, t);
+  _pRegistry->emplace<TextMesh>(e, mesh);
+
 
   _pRenderer->UpdateFont();
 

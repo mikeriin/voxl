@@ -93,3 +93,12 @@ Abi: f16fcc5d47ae4871afa1cb9aa0f4d84089f334a7f477b493b556d5df43762b0b
 Description: JSON for Modern C++
 Status: install ok installed
 
+Package: stb
+Version: 2024-07-29
+Port-Version: 1
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 6350d08df23ba6b11424bb0b2df324b1819eb6773655ae32b3c6b13dfdc341ad
+Description: public domain header-only libraries
+Status: install ok installed
+

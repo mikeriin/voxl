@@ -6,6 +6,8 @@
 
 #include <entt/fwd.hpp>
 
+#include "resources/font.h"
+
 
 class Window;
 class Renderer;
@@ -29,6 +31,8 @@ private:
   std::unique_ptr<entt::registry> _pRegistry;
   std::unique_ptr<Window> _pWindow;
   std::unique_ptr<Renderer> _pRenderer;
+
+  Font _font;
 
   bool init();
 

@@ -7,6 +7,7 @@
     "glm",
     "entt",
     "enkits",
-    "nlohmann-json"
+    "nlohmann-json",
+    "stb"
   ]
 }

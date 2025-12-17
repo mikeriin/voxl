@@ -1,22 +1,19 @@
 #include "graphics/renderer.h"
 
 
-#include <cstddef>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <iostream>
-#include <cstring>
 #include <vector>
 
 #include <SDL3/SDL_video.h>
 #include <glad/glad.h>
 
-#include "components/font.h"
-#include "components/font_mesh.h"
 #include "core/game_context.h"
 #include "platform/window.h"
 #include "events/resize_event.h"
-#include "utils/font_vertex.h"
 #include "utils/read_file.h"
+#include "components/text.h"
+#include "components/text_mesh.h"
 
 
 Renderer::Renderer(entt::registry* registry, Window* window)
@@ -30,6 +27,12 @@ Renderer::Renderer(entt::registry* registry, Window* window)
 
 Renderer::~Renderer()
 {
+  _pRegistry->view<Text, TextMesh>().each([this](Text& text, TextMesh& mesh){
+    glDeleteVertexArrays(1, &mesh.vao);
+    glDeleteBuffers(1, &mesh.vbo);
+    glDeleteBuffers(1, &mesh.ebo);
+  });
+
   if (_glCtx) SDL_GL_DestroyContext(_glCtx);
 }
 
@@ -53,8 +56,6 @@ bool Renderer::Init()
 
   auto& gameCtx = _pRegistry->ctx().get<GameContext>();
   glViewport(0, 0, gameCtx.screenInfo.width, gameCtx.screenInfo.height);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   return true;
 }
@@ -62,48 +63,6 @@ bool Renderer::Init()
 
 void Renderer::UpdateFont()
 {
-  _pRegistry->view<Font, FontMesh>().each([](Font& font, FontMesh& mesh){
-    glCreateVertexArrays(1, &mesh.vao);
-    glCreateBuffers(1, &mesh.vbo);
-    glCreateBuffers(1, &mesh.ebo);
-
-    // stockage immuable pour la perf (mapping pour plus de rapidité)
-    // on alloue assez pour écrire 512 caractères
-    glNamedBufferStorage(mesh.vbo, MAX_TEXT_CHARACTERS * sizeof(FontVertex) * 4, nullptr, GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT);
-    glVertexArrayVertexBuffer(mesh.vao, FONT_BINDING, mesh.vbo, 0, sizeof(FontVertex));
-    glNamedBufferStorage(mesh.ebo, MAX_TEXT_CHARACTERS * sizeof(unsigned int) * 6, nullptr, GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT);
-    glVertexArrayElementBuffer(mesh.vao, mesh.ebo);
-
-    // attributs position
-    glEnableVertexArrayAttrib(mesh.vao, FONT_POSITION_LOC);
-    glVertexArrayAttribFormat(mesh.vao, FONT_POSITION_LOC, 3, GL_FLOAT, GL_FALSE, offsetof(FontVertex, position));
-    glVertexArrayAttribBinding(mesh.vao, FONT_POSITION_LOC, FONT_BINDING);
-
-    // attributs uv
-    glEnableVertexArrayAttrib(mesh.vao, FONT_UV_LOC);
-    glVertexArrayAttribFormat(mesh.vao, FONT_UV_LOC, 2, GL_FLOAT, GL_FALSE, offsetof(FontVertex, uv));
-    glVertexArrayAttribBinding(mesh.vao, FONT_UV_LOC, FONT_BINDING);
-
-    size_t vertexBytes = mesh.vertices.size() * sizeof(FontVertex);
-    size_t indexBytes = mesh.indices.size() * sizeof(unsigned int);
-
-    void* vertexPtr = glMapNamedBufferRange(mesh.vbo, 0, vertexBytes, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    if (vertexPtr)
-    {
-      std::memcpy(vertexPtr, mesh.vertices.data(), vertexBytes);
-      glUnmapNamedBuffer(mesh.vbo);
-      std::cout << "[Renderer] Vertex data successfully copied\n";
-    }
-
-    void* indexPtr = glMapNamedBufferRange(mesh.ebo, 0, indexBytes, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    if (indexPtr)
-    {
-      std::memcpy(indexPtr, mesh.indices.data(), indexBytes);
-      glUnmapNamedBuffer(mesh.ebo);
-      std::cout << "[Renderer] Index data successfully copied\n";
-    }
-  });
-
   unsigned int vert = glCreateShader(GL_VERTEX_SHADER);
   std::string vertSource = ReadFile("assets/shaders/msdf_font.vert");
   const char* vertSourceC = vertSource.c_str();
@@ -153,7 +112,7 @@ void Renderer::UpdateFont()
   }
 
   auto& gameCtx = _pRegistry->ctx().get<GameContext>();
-  _ortho = glm::ortho(0.0f, (float)gameCtx.screenInfo.width, (float)gameCtx.screenInfo.height, 0.0f, -1.0f, 1.0f);
+  _ortho = glm::ortho(0.0f, (float)gameCtx.screenInfo.width, 0.0f, (float)gameCtx.screenInfo.height, -1.0f, 1.0f);
 }
 
 
@@ -176,14 +135,15 @@ void Renderer::EndFrame()
 
 void Renderer::Render()
 {
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDisable(GL_DEPTH_TEST);
   glUseProgram(_program);
-  glUniform1f(glGetUniformLocation(_program, "pxRange"), 2.0f);
   glUniformMatrix4fv(glGetUniformLocation(_program, "projection"), 1, GL_FALSE, &_ortho[0][0]);
   
-  _pRegistry->view<Font, FontMesh>().each([this](Font& font, FontMesh& mesh){
-    glUniform1i(glGetUniformLocation(_program, "msdfTex"), font.texID);
-    glBindTextureUnit(0, font.texID);
+  _pRegistry->view<Text, TextMesh>().each([this](Text& text, TextMesh& mesh){
+    glBindTextureUnit(0, text.pFont->textureHandle);
+    glUniform1f(glGetUniformLocation(_program, "pxRange"), text.pFont->pixelRange);
     glBindVertexArray(mesh.vao);
     glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, nullptr);
   });
@@ -196,5 +156,5 @@ void Renderer::onResize(const ResizeEvent& e)
   int height = e.height;
   std::cout << "[Renderer] " << e.name << "[" << width << ", " << height << "]" << " called\n";
   glViewport(0, 0, width, height);
-  _ortho = glm::ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
+  _ortho = glm::ortho(0.0f, (float)width, 0.0f, (float)height, -1.0f, 1.0f);
 }

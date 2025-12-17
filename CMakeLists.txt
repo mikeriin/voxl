@@ -38,6 +38,7 @@ target_link_libraries(voxl PRIVATE
   EnTT::EnTT
   enkiTS::enkiTS
   nlohmann_json::nlohmann_json
+  ${stb_INCLUDE_DIR}
   OpenGL::GL
 )
 

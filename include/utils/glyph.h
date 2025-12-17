@@ -2,23 +2,28 @@
 #define VOXL_GLYPH_H
 
 
+#include <ostream>
+
+#include <glm/glm.hpp>
+
 struct Glyph
 {
-  // coordonnées du QUAD
-  float planeLeft;
-  float planeBottom;
-  float planeRight;
-  float planeTop;
-
-  // coordonnées UV
-  float uvLeft;
-  float uvBottom;
-  float uvRight;
-  float uvTop;
-
-  // de combien déplacer le curseur X pour la prochaine lettre
   float advance;
+  // toujours dans l'ordre left, bottom, right, top
+  glm::vec4 planeBounds;
+  glm::vec4 atlasBounds;
+
+  friend std::ostream& operator<<(std::ostream& stream, const Glyph& g)
+  {
+    return stream << "glyph{\n" <<
+      "\t" << g.advance << "\n" <<
+      "\t" << g.planeBounds.x << ", " << g.planeBounds.y << ", " << g.planeBounds.z << ", " << g.planeBounds.w << "\n" <<
+      "\t" << g.atlasBounds.x << ", " << g.atlasBounds.y << ", " << g.atlasBounds.z << ", " << g.atlasBounds.w << "\n}\n";
+  }
 };
+
+
+
 
 
 #endif // !VOXL_GLYPH_H

@@ -1234,6 +1234,18 @@
 			"value" : "[opengl32][ ][v()]"
 		},
 		{
+			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_Stb",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Details about finding Stb"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "[E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include][v()]"
+		},
+		{
 			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_nlohmann_json",
 			"properties" : 
 			[
@@ -1288,6 +1300,22 @@
 			],
 			"type" : "PATH",
 			"value" : "E:/Projects/VoxL/build/vcpkg_installed/x64-windows/share/sdl3"
+		},
+		{
+			"name" : "Stb_INCLUDE_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a file."
+				}
+			],
+			"type" : "PATH",
+			"value" : "E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include"
 		},
 		{
 			"name" : "VCPKG_APPLOCAL_DEPS",
@@ -1604,6 +1632,18 @@
 			],
 			"type" : "PATH",
 			"value" : "E:/Projects/VoxL/build/vcpkg_installed/x64-windows/share/nlohmann_json"
+		},
+		{
+			"name" : "stb_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for stb."
+				}
+			],
+			"type" : "PATH",
+			"value" : "stb_DIR-NOTFOUND"
 		},
 		{
 			"name" : "voxl_BINARY_DIR",
