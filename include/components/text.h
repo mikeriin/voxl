@@ -16,6 +16,8 @@ struct Text
   float fontSize;
   glm::vec3 position;
   glm::vec4 color;
+  glm::vec2 min;
+  glm::vec2 max;
 };
 
 

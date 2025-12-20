@@ -49,6 +49,18 @@ cmake_ninja_workdir = E$:/Projects/VoxL/build/
 
 build cmake_object_order_depends_target_voxl: phony || .
 
+build CMakeFiles/voxl.dir/src/core/dev_console.cpp.obj: CXX_COMPILER__voxl_unscanned_Debug E$:/Projects/VoxL/src/core/dev_console.cpp || cmake_object_order_depends_target_voxl
+  CONFIG = Debug
+  DEFINES = -DENKITS_DLL=1 -DENKITS_TASK_PRIORITIES_NUM=3
+  DEP_FILE = CMakeFiles\voxl.dir\src\core\dev_console.cpp.obj.d
+  FLAGS = -O0 -g -Xclang -gcodeview -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd
+  INCLUDES = -IE:/Projects/VoxL/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include/enkiTS
+  OBJECT_DIR = CMakeFiles\voxl.dir
+  OBJECT_FILE_DIR = CMakeFiles\voxl.dir\src\core
+  TARGET_COMPILE_PDB = CMakeFiles\voxl.dir\
+  TARGET_PDB = voxl.pdb
+  TARGET_SUPPORT_DIR = CMakeFiles\voxl.dir
+
 build CMakeFiles/voxl.dir/src/core/engine.cpp.obj: CXX_COMPILER__voxl_unscanned_Debug E$:/Projects/VoxL/src/core/engine.cpp || cmake_object_order_depends_target_voxl
   CONFIG = Debug
   DEFINES = -DENKITS_DLL=1 -DENKITS_TASK_PRIORITIES_NUM=3
@@ -117,7 +129,7 @@ build CMakeFiles/voxl.dir/main.cpp.obj: CXX_COMPILER__voxl_unscanned_Debug E$:/P
 #############################################
 # Link the executable voxl.exe
 
-build voxl.exe: CXX_EXECUTABLE_LINKER__voxl_Debug CMakeFiles/voxl.dir/src/core/engine.cpp.obj CMakeFiles/voxl.dir/src/graphics/renderer.cpp.obj CMakeFiles/voxl.dir/src/platform/input_handler.cpp.obj CMakeFiles/voxl.dir/src/platform/window.cpp.obj CMakeFiles/voxl.dir/main.cpp.obj | vcpkg_installed/x64-windows/debug/lib/SDL3.lib vcpkg_installed/x64-windows/debug/lib/glad.lib vcpkg_installed/x64-windows/debug/lib/glm.lib vcpkg_installed/x64-windows/debug/lib/enkiTS.lib
+build voxl.exe: CXX_EXECUTABLE_LINKER__voxl_Debug CMakeFiles/voxl.dir/src/core/dev_console.cpp.obj CMakeFiles/voxl.dir/src/core/engine.cpp.obj CMakeFiles/voxl.dir/src/graphics/renderer.cpp.obj CMakeFiles/voxl.dir/src/platform/input_handler.cpp.obj CMakeFiles/voxl.dir/src/platform/window.cpp.obj CMakeFiles/voxl.dir/main.cpp.obj | vcpkg_installed/x64-windows/debug/lib/SDL3.lib vcpkg_installed/x64-windows/debug/lib/glad.lib vcpkg_installed/x64-windows/debug/lib/glm.lib vcpkg_installed/x64-windows/debug/lib/enkiTS.lib
   CONFIG = Debug
   FLAGS = -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd
   LINK_FLAGS = -Xlinker /subsystem:console -fuse-ld=lld-link

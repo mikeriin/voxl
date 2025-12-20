@@ -59,4 +59,4 @@ The package stb provides CMake targets:
 
     find_package(Stb REQUIRED)
     target_include_directories(main PRIVATE ${Stb_INCLUDE_DIR})
-All requested installations completed successfully in: 412 us
+All requested installations completed successfully in: 445 us

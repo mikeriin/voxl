@@ -27,6 +27,10 @@ void InputHandler::ProcessEvent(const SDL_Event& e)
 {
   switch (e.type) 
   {
+    case SDL_EVENT_TEXT_INPUT:
+      _textInput += e.text.text;
+    break;
+
     case SDL_EVENT_KEY_DOWN:
       if (e.key.repeat) break;
       _currKeyState[e.key.scancode] = 1;
@@ -80,4 +84,11 @@ bool InputHandler::IsButtonReleased(uint8_t button) const
 {
   if (button > 5) return false;
   return !_currButtonState[button] && _prevButtonState[button];
+}
+
+std::string InputHandler::GetTextInput()
+{
+  std::string temp = _textInput;
+  _textInput.clear();
+  return temp;
 }

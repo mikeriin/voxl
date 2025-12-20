@@ -11,10 +11,12 @@
 
 class Window;
 class Renderer;
+class DevConsole;
 
 struct GameContext;
 struct CloseEvent;
 struct ResizeEvent;
+struct GameStateChangeEvent;
 
 
 class Engine
@@ -31,12 +33,14 @@ private:
   std::unique_ptr<entt::registry> _pRegistry;
   std::unique_ptr<Window> _pWindow;
   std::unique_ptr<Renderer> _pRenderer;
+  std::unique_ptr<DevConsole> _pDevConsole;
 
   Font _font;
 
   bool init();
 
   void onClose(const CloseEvent& e);
+  void onGameStateChange(const GameStateChangeEvent& e);
 };
 
 

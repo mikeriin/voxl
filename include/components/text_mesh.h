@@ -7,6 +7,9 @@
 #include <glm/glm.hpp>
 
 
+static constexpr int MAX_TEXT_LENGTH = 512;
+
+
 struct TextVertex
 {
   glm::vec3 position;
@@ -22,6 +25,8 @@ struct TextMesh
   unsigned int vao;
   unsigned int vbo;
   unsigned int ebo;
+
+  void* pBuffer;
 };
 
 

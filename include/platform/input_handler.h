@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <string>
 
 #include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_events.h>
@@ -25,12 +26,16 @@ public:
   bool IsButtonHeld(uint8_t button) const;
   bool IsButtonReleased(uint8_t button) const;
 
+  std::string GetTextInput();
+
 private:
   std::vector<uint8_t> _currKeyState;
   std::vector<uint8_t> _prevKayState;
 
   std::vector<uint8_t> _currButtonState;
   std::vector<uint8_t> _prevButtonState;
+
+  std::string _textInput;
 };
 
 

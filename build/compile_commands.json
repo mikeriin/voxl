@@ -1,6 +1,12 @@
 [
 {
   "directory": "E:/Projects/VoxL/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DENKITS_DLL=1 -DENKITS_TASK_PRIORITIES_NUM=3 -IE:/Projects/VoxL/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include/enkiTS -O0 -g -Xclang -gcodeview -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\voxl.dir\\src\\core\\dev_console.cpp.obj -c E:\\Projects\\VoxL\\src\\core\\dev_console.cpp",
+  "file": "E:/Projects/VoxL/src/core/dev_console.cpp",
+  "output": "E:/Projects/VoxL/build/CMakeFiles/voxl.dir/src/core/dev_console.cpp.obj"
+},
+{
+  "directory": "E:/Projects/VoxL/build",
   "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DENKITS_DLL=1 -DENKITS_TASK_PRIORITIES_NUM=3 -IE:/Projects/VoxL/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include/enkiTS -O0 -g -Xclang -gcodeview -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\voxl.dir\\src\\core\\engine.cpp.obj -c E:\\Projects\\VoxL\\src\\core\\engine.cpp",
   "file": "E:/Projects/VoxL/src/core/engine.cpp",
   "output": "E:/Projects/VoxL/build/CMakeFiles/voxl.dir/src/core/engine.cpp.obj"
