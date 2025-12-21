@@ -1,6 +1,7 @@
 #include "core/engine.h"
 #include <SDL3/SDL_video.h>
 #define STB_IMAGE_IMPLEMENTATION
+#define TINYOBJLOADER_IMPLEMENTATION
 
 #include <memory>
 #include <iostream>
@@ -24,9 +25,6 @@
 #include "events/resize_event.h"
 #include "events/close_event.h"
 #include "events/game_state_change_event.h"
-#include "components/text.h"
-#include "components/text_mesh.h"
-#include "utils/create_text_mesh.h"
 #include "systems/user_control_system.h"
 #include "systems/timer_system.h"
 
@@ -102,22 +100,6 @@ bool Engine::init() {
     return false;
 
   _font = LoadFont("roboto");
-
-  Text t{
-    .text = "Hello, World!\n@#&!$*%^§+=?[]{}<>~€†",
-    .pFont = &_font,
-    .fontSize = 50,
-    .position = {50.0f, 450.0f, 0.0f},
-    .color = {1.0f, 1.0f, 1.0f, 1.0f}
-  };
-  auto mesh = CreateTextMesh(t);
-
-  auto e = _pRegistry->create();
-  _pRegistry->emplace<Text>(e, t);
-  _pRegistry->emplace<TextMesh>(e, mesh);
-
-
-  _pRenderer->UpdateFont(); // TODO! créer un gestionnaire de resources, pour le moment cette fonction créée un shader pour afficher du text
   
   registerCommands();
   return true;
@@ -199,12 +181,10 @@ void Engine::registerHelpCommand()
         // s'il y a des arguments alors on renvoit une erreur sinon on quitte le program
         if (!args.empty()) throw std::out_of_range("[Engine] $help doesn't accept args");
         
-        std::string help_buffer;
         for (const auto& helper: command_manager.GetCommands()) 
         {
-          help_buffer += helper.second.helper + "\n";
+          _pDevConsole->UpdateHistory(helper.second.helper);
         }
-        _pDevConsole->UpdateHistory(help_buffer);
       } 
       // la dite erreur
       catch (const std::out_of_range &e) 

@@ -104,7 +104,7 @@ inline TextMesh CreateTextMesh(const Text& text)
   glVertexArrayAttribBinding(mesh.vao, 0, 0);
 
   glEnableVertexArrayAttrib(mesh.vao, 1); // texCoord => 1
-  glVertexArrayAttribFormat(mesh.vao, 1, 2, GL_FLOAT, GL_FALSE, offsetof(TextVertex, texCoord));
+  glVertexArrayAttribFormat(mesh.vao, 1, 2, GL_FLOAT, GL_FALSE, offsetof(TextVertex, textureCoordinates));
   glVertexArrayAttribBinding(mesh.vao, 1, 0);
 
   size_t vertexBytes = sizeof(TextVertex) * mesh.vertices.size();

@@ -13,6 +13,7 @@
 #include "core/game_context.h"
 #include "events/game_state_change_event.h"
 #include "loaders/font_loader.h"
+#include "loaders/obj_loader.h"
 #include "platform/input_handler.h"
 #include "utils/create_text_mesh.h"
 #include "utils/game_state.h"
@@ -20,6 +21,8 @@
 #include "components/text_mesh.h"
 #include "components/tags.h"
 #include "components/timer.h"
+#include "components/mesh.h"
+#include "components/transform.h"
 #include "utils/get_unique.h"
 
 
@@ -40,6 +43,12 @@ bool DevConsole::Init()
   
   auto e = _pRegistry->create();
   _pRegistry->emplace<Console>(e);
+  _pRegistry->emplace<Mesh>(e, LoadOBJ("ui_quad", {0.0f, 0.0f, 0.0f, 0.5f}));
+  _pRegistry->emplace<Transform>(e, Transform{
+    .position = {5.0f, (float) game_context.screenInfo.height - (CONSOLE_FONT_SIZE * 0.25f), 0.0f},
+    .rotation = {0.0f, 0.0f, 0.0f},
+    .scale = { (float) game_context.screenInfo.width - 10.0f, CONSOLE_FONT_SIZE * 1.5f, 1.0f }
+  });
   auto& text = _pRegistry->emplace<Text>(e, Text{
     .text = "",
     .pFont = &_font,
@@ -193,6 +202,10 @@ void DevConsole::OnResize(const ResizeEvent& e)
     console_text.position.y = (float) e.height - BUFFER_Y_OFFSET;
     auto& console_text_mesh = _pRegistry->get<TextMesh>(console_entity);
     UpdateTextMesh(console_text_mesh, console_text);
+
+    auto& console_ui_transform = _pRegistry->get<Transform>(console_entity);
+    console_ui_transform.position.y = (float) e.height - (CONSOLE_FONT_SIZE * 0.25f);
+    console_ui_transform.scale.x = (float) e.width - 10.0f;
   }
 
   // pareil pour l'historique s'il est encore affiché
@@ -217,6 +230,8 @@ void DevConsole::UpdateHistory(const std::string& buffer)
   history_text.text = getHistoryAsText();
   UpdateTextMesh(_pRegistry->get<TextMesh>(_historyEntity), history_text);
   resetHistoryTimer(HISTORY_TIMER_TIME, true);
+
+  std::cout << "[DevConsole] " << history_text.text.size() << " characters in history\n";
 }
 
 

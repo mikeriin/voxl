@@ -13,7 +13,7 @@
 
 static constexpr float CONSOLE_FONT_SIZE = 12.0f;
 static constexpr float BUFFER_Y_OFFSET = 15.0f;
-static constexpr float HISTORY_Y_OFFSET = 30.0f;
+static constexpr float HISTORY_Y_OFFSET = 40.0f;
 static constexpr size_t NUM_COMMAND_HISTORY = 20;
 static constexpr double HISTORY_TIMER_TIME = 10.0;
 

@@ -8,6 +8,7 @@
 
 #include <SDL3/SDL_video.h>
 #include <glad/glad.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "core/console_context.h"
 #include "core/game_context.h"
@@ -15,9 +16,13 @@
 #include "core/command.h"
 #include "platform/window.h"
 #include "events/resize_event.h"
-#include "utils/read_file.h"
+#include "utils/get_transform_matrix.h"
 #include "components/text.h"
 #include "components/text_mesh.h"
+#include "components/mesh.h"
+#include "components/transform.h"
+#include "resources/shader.h"
+#include "loaders/shader_loader.h"
 
 
 Renderer::Renderer(entt::registry* registry, Window* window)
@@ -31,7 +36,13 @@ Renderer::Renderer(entt::registry* registry, Window* window)
 
 Renderer::~Renderer()
 {
-  _pRegistry->view<Text, TextMesh>().each([this](Text& text, TextMesh& mesh){
+  _pRegistry->view<TextMesh>().each([this](TextMesh& mesh){
+    glDeleteVertexArrays(1, &mesh.vao);
+    glDeleteBuffers(1, &mesh.vbo);
+    glDeleteBuffers(1, &mesh.ebo);
+  });
+
+  _pRegistry->view<Mesh>().each([this](Mesh& mesh){
     glDeleteVertexArrays(1, &mesh.vao);
     glDeleteBuffers(1, &mesh.vbo);
     glDeleteBuffers(1, &mesh.ebo);
@@ -60,66 +71,16 @@ bool Renderer::Init()
 
   auto& game_context = _pRegistry->ctx().get<GameContext>();
   glViewport(0, 0, game_context.screenInfo.width, game_context.screenInfo.height);
-  glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+  glClearColor(0.773f, 0.729f, 1.0f, 1.0f);
 
   registerCommands();
 
-  return true;
-}
+  _pTextShader = new Shader{ LoadShader("msdf_font") };
+  _pUIShader = new Shader{ LoadShader("ui") };
 
-
-void Renderer::UpdateFont()
-{
-  unsigned int vertex = glCreateShader(GL_VERTEX_SHADER);
-  std::string vertex_source = ReadFile("assets/shaders/msdf_font.vert");
-  const char* vertex_source_c = vertex_source.c_str();
-  glShaderSource(vertex, 1, &vertex_source_c, nullptr);
-  glCompileShader(vertex);
-
-  int success;
-  glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-  if (!success)
-  {
-    int log_length;
-    glGetShaderiv(vertex, GL_INFO_LOG_LENGTH, &log_length);
-    std::vector<char> info_log(log_length);
-    glGetShaderInfoLog(vertex, log_length, &log_length, info_log.data());
-    std::cout << "[Renderer] Failed to compile vertex shader: " << info_log.data() << "\n";
-  }
-
-  unsigned int fragment = glCreateShader(GL_FRAGMENT_SHADER);
-  std::string fragment_source = ReadFile("assets/shaders/msdf_font.frag");
-  const char* fragment_source_c = fragment_source.c_str();
-  glShaderSource(fragment, 1, &fragment_source_c, nullptr);
-  glCompileShader(fragment);
-
-  glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-  if (!success)
-  {
-    int log_length;
-    glGetShaderiv(fragment, GL_INFO_LOG_LENGTH, &log_length);
-    std::vector<char> info_log(log_length);
-    glGetShaderInfoLog(fragment, log_length, &log_length, info_log.data());
-    std::cout << "[Renderer] Failed to compile fragment shader: " << info_log.data() << "\n";
-  }
-
-  _program = glCreateProgram();
-  glAttachShader(_program, vertex);
-  glAttachShader(_program, fragment);
-  glLinkProgram(_program);
-
-  glGetProgramiv(_program, GL_LINK_STATUS, &success);
-  if (!success)
-  {
-    int log_length;
-    glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &log_length);
-    std::vector<char> info_log(log_length);
-    glGetProgramInfoLog(_program, log_length, &log_length, info_log.data());
-    std::cout << "[Renderer] Failed to link program: " << info_log.data() << "\n";
-  }
-
-  auto& game_context = _pRegistry->ctx().get<GameContext>();
   _ortho = glm::ortho(0.0f, (float)game_context.screenInfo.width, 0.0f, (float)game_context.screenInfo.height, -1.0f, 1.0f);
+
+  return true;
 }
 
 
@@ -145,16 +106,35 @@ void Renderer::Render()
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDisable(GL_DEPTH_TEST);
-  glUseProgram(_program);
-  glUniformMatrix4fv(glGetUniformLocation(_program, "projection"), 1, GL_FALSE, &_ortho[0][0]);
+  glDisable(GL_CULL_FACE);
+
+  glUseProgram(_pTextShader->program);
+  glUniformMatrix4fv(glGetUniformLocation(_pTextShader->program, "u_projection"), 1, GL_FALSE, &_ortho[0][0]);
+  glUseProgram(_pUIShader->program);
+  glUniformMatrix4fv(glGetUniformLocation(_pUIShader->program, "u_projection"), 1, GL_FALSE, &_ortho[0][0]);
+  glUseProgram(0);
   
-  _pRegistry->view<Text, TextMesh>().each([this](Text& text, TextMesh& mesh){
+  _pRegistry->view<Text, TextMesh>().each([this](auto entity, Text& text, TextMesh& textMesh)
+  {
     if (text.text.empty()) return;
 
+    if (_pRegistry->all_of<Mesh, Transform>(entity))
+    {
+      glUseProgram(_pUIShader->program);
+      auto model = GetTransformMatrix(_pRegistry->get<Transform>(entity));
+      glUniformMatrix4fv(glGetUniformLocation(_pUIShader->program, "u_model"), 1, GL_FALSE, &model[0][0]);
+      Mesh& mesh = _pRegistry->get<Mesh>(entity);
+      glBindVertexArray(mesh.vao);
+      glDrawElements(GL_TRIANGLES, mesh.indiceCount, GL_UNSIGNED_INT, nullptr);
+      glUseProgram(0);
+    }
+
+    glUseProgram(_pTextShader->program);
     glBindTextureUnit(0, text.pFont->textureHandle);
-    glUniform1f(glGetUniformLocation(_program, "pxRange"), text.pFont->pixelRange);
-    glBindVertexArray(mesh.vao);
-    glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, nullptr);
+    glUniform1f(glGetUniformLocation(_pTextShader->program, "pxRange"), text.pFont->pixelRange);
+    glBindVertexArray(textMesh.vao);
+    glDrawElements(GL_TRIANGLES, textMesh.indices.size(), GL_UNSIGNED_INT, nullptr);
+    glUseProgram(0);
   });
 }
 

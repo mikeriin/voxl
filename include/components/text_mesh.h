@@ -7,13 +7,13 @@
 #include <glm/glm.hpp>
 
 
-static constexpr int MAX_TEXT_LENGTH = 512;
+static constexpr int MAX_TEXT_LENGTH = 2048;
 
 
 struct TextVertex
 {
   glm::vec3 position;
-  glm::vec2 texCoord;
+  glm::vec2 textureCoordinates;
 };
 
 

@@ -8,6 +8,7 @@
     "entt",
     "enkits",
     "nlohmann-json",
-    "stb"
+    "stb",
+    "tinyobjloader"
   ]
 }

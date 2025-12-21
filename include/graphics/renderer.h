@@ -10,6 +10,7 @@
 class Window;
 
 struct ResizeEvent;
+struct Shader;
 
 
 class Renderer
@@ -30,7 +31,9 @@ private:
   Window* _pWindow;
   SDL_GLContext _glCtx;
 
-  unsigned int _program;
+  Shader* _pTextShader;
+  Shader* _pUIShader;
+
   glm::mat4 _ortho;
 
   void registerCommands();

@@ -8,10 +8,10 @@ out VS_OUT
   vec2 texCoord;
 } vs_out;
 
-uniform mat4 projection;
+uniform mat4 u_projection;
 
 void main()
 {
   vs_out.texCoord = uv;
-  gl_Position = projection * vec4(position.xy, 0.0, 1.0);
+  gl_Position = u_projection * vec4(position.xy, 0.0, 1.0);
 }

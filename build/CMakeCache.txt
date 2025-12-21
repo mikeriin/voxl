@@ -314,6 +314,9 @@ glm_DIR:PATH=E:/Projects/VoxL/build/vcpkg_installed/x64-windows/share/glm
 //The directory containing a CMake configuration file for nlohmann_json.
 nlohmann_json_DIR:PATH=E:/Projects/VoxL/build/vcpkg_installed/x64-windows/share/nlohmann_json
 
+//The directory containing a CMake configuration file for tinyobjloader.
+tinyobjloader_DIR:PATH=E:/Projects/VoxL/build/vcpkg_installed/x64-windows/share/tinyobjloader
+
 //Value Computed by CMake
 voxl_BINARY_DIR:STATIC=E:/Projects/VoxL/build
 

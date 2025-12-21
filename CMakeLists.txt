@@ -16,6 +16,7 @@ find_package(glm CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 find_package(enkiTS CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(tinyobjloader CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 
 # récupérer tous les fichier .cpp du projet
@@ -39,6 +40,7 @@ target_link_libraries(voxl PRIVATE
   enkiTS::enkiTS
   nlohmann_json::nlohmann_json
   ${stb_INCLUDE_DIR}
+  tinyobjloader::tinyobjloader
   OpenGL::GL
 )
 
