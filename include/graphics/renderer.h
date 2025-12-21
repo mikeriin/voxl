@@ -33,7 +33,8 @@ private:
   unsigned int _program;
   glm::mat4 _ortho;
 
-  
+  void registerCommands();
+
   void onResize(const ResizeEvent& e);
 };
 

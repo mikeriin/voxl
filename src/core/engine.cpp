@@ -16,6 +16,7 @@
 #include "core/command.h"
 #include "core/command_manager.h"
 #include "core/command_manager.h"
+#include "core/console_context.h"
 #include "platform/window.h"
 #include "platform/input_handler.h"
 #include "graphics/renderer.h"
@@ -35,6 +36,7 @@ Engine::Engine() : _isRunning(true) {
 
   _pRegistry->ctx().emplace<InputHandler>();
   _pRegistry->ctx().emplace<CommandManager>();
+  _pRegistry->ctx().emplace<ConsoleContext>();
   
   auto& dispatcher = _pRegistry->ctx().emplace<entt::dispatcher>();
   auto &game_context = _pRegistry->ctx().emplace<GameContext>();
@@ -45,7 +47,7 @@ Engine::Engine() : _isRunning(true) {
   _pRenderer = std::make_unique<Renderer>(_pRegistry.get(), _pWindow.get());
   _pDevConsole = std::make_unique<DevConsole>(_pRegistry.get());
 
-  dispatcher.sink<ResizeEvent>().connect<&DevConsole::OnResize>(_pDevConsole);
+  dispatcher.sink<ResizeEvent>().connect<&DevConsole::OnResize>(_pDevConsole.get());
 }
 
 Engine::~Engine() 
@@ -70,6 +72,7 @@ void Engine::Run() {
   auto last_frame_time = std::chrono::steady_clock::now();
   double delta_time;
 
+  registerHelpCommand(); // maintenant on peut faire $help et afficher tous les helper !
   while (_isRunning) {
     auto current_frame_time = std::chrono::steady_clock::now();
     delta_time = std::chrono::duration<double>(current_frame_time - last_frame_time).count();
@@ -129,7 +132,7 @@ void Engine::registerCommands()
   // chaque commande commence par le symbole $
   // interprétation des commandes dans DevConsole
   // ça sera toujours la même boucle
-  std::string helper = "?> $exit";
+  std::string helper = "?> $exit --> quit to desktop";
   command_manager.Register(Command{
     .name = "exit",
     .helper = helper,
@@ -149,8 +152,9 @@ void Engine::registerCommands()
     }
   });
 
+
   // activer/désactiver le fullscreen
-  helper = "?> $fullscreen <0/1>";
+  helper = "?> $fullscreen <toggle> -- toggle must be 0 or 1 --> toggle fullscreen";
   command_manager.Register(Command{
     .name = "fullscreen",
     .helper = helper,
@@ -175,6 +179,38 @@ void Engine::registerCommands()
       {
         _pDevConsole->UpdateHistory(helper);
         std::cerr << e.what() << "\n";
+      }
+    }
+  });
+}
+
+
+// appel de cette méthode juste avant la boucle pour être sur d'avoir la liste de toutes les commandes
+void Engine::registerHelpCommand()
+{
+  auto& command_manager = _pRegistry->ctx().get<CommandManager>();
+  std::string helper = "?> $help --> display available commands";
+  command_manager.Register(Command{
+    .name = "help",
+    .helper = helper,
+    .func = [this, helper, &command_manager](auto& args)
+    {
+      try {
+        // s'il y a des arguments alors on renvoit une erreur sinon on quitte le program
+        if (!args.empty()) throw std::out_of_range("[Engine] $help doesn't accept args");
+        
+        std::string help_buffer;
+        for (const auto& helper: command_manager.GetCommands()) 
+        {
+          help_buffer += helper.second.helper + "\n";
+        }
+        _pDevConsole->UpdateHistory(help_buffer);
+      } 
+      // la dite erreur
+      catch (const std::out_of_range &e) 
+      {
+        _pDevConsole->UpdateHistory(helper); // affiche le helper dans la console développeur
+        std::cerr << e.what() << "\n"; // afficher la raison pour laquelle la commande n'a pas été exécuté, coté code
       }
     }
   });

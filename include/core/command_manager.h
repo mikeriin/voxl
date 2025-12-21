@@ -18,6 +18,8 @@ public:
   void Register(const Command& cmd);
   bool Execute(const std::string& name, std::vector<std::string>& args) const;
 
+  inline const std::unordered_map<std::string, Command>& GetCommands() const { return _commands; }
+
 private:
   std::unordered_map<std::string, Command> _commands;
 };

@@ -39,6 +39,7 @@ private:
 
   bool init();
   void registerCommands();
+  void registerHelpCommand();
 
   void onClose(const CloseEvent& e);
   void onGameStateChange(const GameStateChangeEvent& e);

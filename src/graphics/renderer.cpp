@@ -9,7 +9,10 @@
 #include <SDL3/SDL_video.h>
 #include <glad/glad.h>
 
+#include "core/console_context.h"
 #include "core/game_context.h"
+#include "core/command_manager.h"
+#include "core/command.h"
 #include "platform/window.h"
 #include "events/resize_event.h"
 #include "utils/read_file.h"
@@ -57,6 +60,9 @@ bool Renderer::Init()
 
   auto& game_context = _pRegistry->ctx().get<GameContext>();
   glViewport(0, 0, game_context.screenInfo.width, game_context.screenInfo.height);
+  glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+
+  registerCommands();
 
   return true;
 }
@@ -122,7 +128,6 @@ void Renderer::BeginFrame()
   auto& screenInfo = _pRegistry->ctx().get<GameContext>().screenInfo;
   if (screenInfo.isMinimized) return;
 
-  glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -150,6 +155,82 @@ void Renderer::Render()
     glUniform1f(glGetUniformLocation(_program, "pxRange"), text.pFont->pixelRange);
     glBindVertexArray(mesh.vao);
     glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, nullptr);
+  });
+}
+
+
+void Renderer::registerCommands()
+{
+  auto& command_manager = _pRegistry->ctx().get<CommandManager>();
+  auto& console_context = _pRegistry->ctx().get<ConsoleContext>();
+
+  std::string helper = "?> $set_clear_color <red> <green> <blue> -- color values must be between 0 and 1 --> change GL clear color buffer";
+  std::string name = "set_clear_color";
+  command_manager.Register(Command{
+    .name = name,
+    .helper = helper,
+    .func = [name, helper, &console_context](auto& args)
+    {
+      try {
+        if (args.size() != 3) throw std::out_of_range("[Engine] $set_clear_color needs 3 args");
+        
+        size_t last_valid_index;
+        float r = std::stof(args[0], &last_valid_index);
+        if (last_valid_index != args[0].size() || r < 0.0f || r > 1.0f) throw std::invalid_argument("[Engine] args[0] must be between 0 and 1 included");
+        float g = std::stof(args[1], &last_valid_index);
+        if (last_valid_index != args[1].size() || g < 0.0f || g > 1.0f) throw std::invalid_argument("[Engine] args[1] must be between 0 and 1 included");
+        float b = std::stof(args[2], &last_valid_index);
+        if (last_valid_index != args[2].size() || b < 0.0f || b > 1.0f) throw std::invalid_argument("[Engine] args[2] must be between 0 and 1 included");
+
+        glClearColor(r, g, b, 1.0f);
+      } 
+      // la dite erreur
+      catch (const std::out_of_range& e) 
+      {
+        console_context.historyBuffer.insert_or_assign(name, helper);
+        std::cerr << e.what() << "\n";
+      }
+      catch (const std::invalid_argument& e)
+      {
+        console_context.historyBuffer.insert_or_assign(name, helper);
+        std::cerr << e.what() << "\n";
+      }
+    }
+  });
+
+
+  helper = "?> $set_clear_color_rgb <red> <green> <blue> -- color values must be between 0 and 255 --> change GL clear color buffer";
+ name = "set_clear_color_rgb";
+  command_manager.Register(Command{
+    .name = name,
+    .helper = helper,
+    .func = [name, helper, &console_context](auto& args)
+    {
+      try {
+        if (args.size() != 3) throw std::out_of_range("[Engine] $set_clear_color_rgb needs 3 args");
+        
+        size_t last_valid_index;
+        int r = std::stoi(args[0], &last_valid_index);
+        if (last_valid_index != args[0].size() || r < 0 || r > 255) throw std::invalid_argument("[Engine] args[0] must be between 0 and 255 included");
+        int g = std::stoi(args[1], &last_valid_index);
+        if (last_valid_index != args[1].size() || g < 0 || g > 255) throw std::invalid_argument("[Engine] args[1] must be between 0 and 255 included");
+        int b = std::stoi(args[2], &last_valid_index);
+        if (last_valid_index != args[2].size() || b < 0 || b > 255) throw std::invalid_argument("[Engine] args[2] must be between 0 and 255 included");
+
+        glClearColor((float) r / 255.0f, (float) g / 255.0f, (float) b / 255.0f, 1.0f);
+      } 
+      // la dite erreur
+      catch (const std::out_of_range& e) 
+      {
+        console_context.historyBuffer.insert_or_assign(name, helper);
+        std::cerr << e.what() << "\n";
+      }
+      catch (const std::invalid_argument& e)
+      {
+        console_context.historyBuffer.insert_or_assign(name, helper);
+        std::cerr << e.what() << "\n";
+      }
+    }
   });
 }
 

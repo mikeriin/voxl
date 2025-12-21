@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "core/command_manager.h"
+#include "core/console_context.h"
 #include "core/game_context.h"
 #include "events/game_state_change_event.h"
 #include "loaders/font_loader.h"
@@ -141,7 +142,16 @@ void DevConsole::Update()
           if (tokens.size() > 1) args.assign(tokens.begin() + 1, tokens.end());
 
           auto& command_manager = _pRegistry->ctx().get<CommandManager>();
-          bool does_cmd_exist = command_manager.Execute(CMD_NAME.substr(1), args);
+          std::string name = CMD_NAME.substr(1);
+          bool does_cmd_exist = command_manager.Execute(name, args);
+
+          // dans le cas ou Execute est appelé ailleurs de dans la classe Engine, les autres classes n'ont pas accès à DevConsole
+          auto& console_context = _pRegistry->ctx().emplace<ConsoleContext>();
+          if (console_context.historyBuffer.contains(name)) 
+          {
+            UpdateHistory(console_context.historyBuffer.at(name));
+            console_context.historyBuffer.erase(name);
+          }
 
           if (!does_cmd_exist) UpdateHistory("!> " + CMD_NAME + " doesn't exist");
         }
@@ -166,7 +176,7 @@ void DevConsole::Update()
     auto& consoleTextMesh = _pRegistry->get<TextMesh>(console_entity);
     UpdateTextMesh(consoleTextMesh, console_text);
 
-    resetHistoryTimer(HISTORY_TIMER_TIME, true);
+    resetHistoryTimer(0.0, true);
 
     dispatcher.enqueue<GameStateChangeEvent>({.newState = GameState::IN_GAME});
   }
