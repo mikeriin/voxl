@@ -5,7 +5,8 @@
 #include <string>
 
 
-// alternative à <codecvt> déprécié généré par gemini
+// alternative à <codecvt> déprécié
+// généré par gemini
 inline uint32_t NextUTF8(const std::string& str, size_t& i) 
 {
   uint8_t c = (uint8_t)str[i++];

@@ -1,6 +1,7 @@
 #include "graphics/renderer.h"
 
 
+#include <entt/signal/fwd.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <iostream>
 #include <vector>
@@ -20,8 +21,8 @@ Renderer::Renderer(entt::registry* registry, Window* window)
   : _pRegistry(registry),
     _pWindow(window)
 {
-  auto& gameCtx = _pRegistry->ctx().get<GameContext>();
-  gameCtx.dispatcher.sink<ResizeEvent>().connect<&Renderer::onResize>(this);
+  auto& dispatcher = _pRegistry->ctx().get<entt::dispatcher>();
+  dispatcher.sink<ResizeEvent>().connect<&Renderer::onResize>(this);
 }
 
 
@@ -54,8 +55,8 @@ bool Renderer::Init()
     return false;
   }
 
-  auto& gameCtx = _pRegistry->ctx().get<GameContext>();
-  glViewport(0, 0, gameCtx.screenInfo.width, gameCtx.screenInfo.height);
+  auto& game_context = _pRegistry->ctx().get<GameContext>();
+  glViewport(0, 0, game_context.screenInfo.width, game_context.screenInfo.height);
 
   return true;
 }
@@ -63,56 +64,56 @@ bool Renderer::Init()
 
 void Renderer::UpdateFont()
 {
-  unsigned int vert = glCreateShader(GL_VERTEX_SHADER);
-  std::string vertSource = ReadFile("assets/shaders/msdf_font.vert");
-  const char* vertSourceC = vertSource.c_str();
-  glShaderSource(vert, 1, &vertSourceC, nullptr);
-  glCompileShader(vert);
+  unsigned int vertex = glCreateShader(GL_VERTEX_SHADER);
+  std::string vertex_source = ReadFile("assets/shaders/msdf_font.vert");
+  const char* vertex_source_c = vertex_source.c_str();
+  glShaderSource(vertex, 1, &vertex_source_c, nullptr);
+  glCompileShader(vertex);
 
   int success;
-  glGetShaderiv(vert, GL_COMPILE_STATUS, &success);
+  glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
   if (!success)
   {
-    int logLength;
-    glGetShaderiv(vert, GL_INFO_LOG_LENGTH, &logLength);
-    std::vector<char> infoLog(logLength);
-    glGetShaderInfoLog(vert, logLength, &logLength, infoLog.data());
-    std::cout << "[Renderer] Failed to compile vertex shader: " << infoLog.data() << "\n";
+    int log_length;
+    glGetShaderiv(vertex, GL_INFO_LOG_LENGTH, &log_length);
+    std::vector<char> info_log(log_length);
+    glGetShaderInfoLog(vertex, log_length, &log_length, info_log.data());
+    std::cout << "[Renderer] Failed to compile vertex shader: " << info_log.data() << "\n";
   }
 
-  unsigned int frag = glCreateShader(GL_FRAGMENT_SHADER);
-  std::string fragSource = ReadFile("assets/shaders/msdf_font.frag");
-  const char* fragSourceC = fragSource.c_str();
-  glShaderSource(frag, 1, &fragSourceC, nullptr);
-  glCompileShader(frag);
+  unsigned int fragment = glCreateShader(GL_FRAGMENT_SHADER);
+  std::string fragment_source = ReadFile("assets/shaders/msdf_font.frag");
+  const char* fragment_source_c = fragment_source.c_str();
+  glShaderSource(fragment, 1, &fragment_source_c, nullptr);
+  glCompileShader(fragment);
 
-  glGetShaderiv(frag, GL_COMPILE_STATUS, &success);
+  glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
   if (!success)
   {
-    int logLength;
-    glGetShaderiv(frag, GL_INFO_LOG_LENGTH, &logLength);
-    std::vector<char> infoLog(logLength);
-    glGetShaderInfoLog(frag, logLength, &logLength, infoLog.data());
-    std::cout << "[Renderer] Failed to compile fragment shader: " << infoLog.data() << "\n";
+    int log_length;
+    glGetShaderiv(fragment, GL_INFO_LOG_LENGTH, &log_length);
+    std::vector<char> info_log(log_length);
+    glGetShaderInfoLog(fragment, log_length, &log_length, info_log.data());
+    std::cout << "[Renderer] Failed to compile fragment shader: " << info_log.data() << "\n";
   }
 
   _program = glCreateProgram();
-  glAttachShader(_program, vert);
-  glAttachShader(_program, frag);
+  glAttachShader(_program, vertex);
+  glAttachShader(_program, fragment);
   glLinkProgram(_program);
 
   glGetProgramiv(_program, GL_LINK_STATUS, &success);
   if (!success)
   {
-    int logLength;
-    glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &logLength);
-    std::vector<char> infoLog(logLength);
-    glGetProgramInfoLog(_program, logLength, &logLength, infoLog.data());
-    std::cout << "[Renderer] Failed to link program: " << infoLog.data() << "\n";
+    int log_length;
+    glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &log_length);
+    std::vector<char> info_log(log_length);
+    glGetProgramInfoLog(_program, log_length, &log_length, info_log.data());
+    std::cout << "[Renderer] Failed to link program: " << info_log.data() << "\n";
   }
 
-  auto& gameCtx = _pRegistry->ctx().get<GameContext>();
-  _ortho = glm::ortho(0.0f, (float)gameCtx.screenInfo.width, 0.0f, (float)gameCtx.screenInfo.height, -1.0f, 1.0f);
+  auto& game_context = _pRegistry->ctx().get<GameContext>();
+  _ortho = glm::ortho(0.0f, (float)game_context.screenInfo.width, 0.0f, (float)game_context.screenInfo.height, -1.0f, 1.0f);
 }
 
 
@@ -135,6 +136,7 @@ void Renderer::EndFrame()
 
 void Renderer::Render()
 {
+  // afficher l'UI à la fin
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDisable(GL_DEPTH_TEST);
@@ -142,6 +144,8 @@ void Renderer::Render()
   glUniformMatrix4fv(glGetUniformLocation(_program, "projection"), 1, GL_FALSE, &_ortho[0][0]);
   
   _pRegistry->view<Text, TextMesh>().each([this](Text& text, TextMesh& mesh){
+    if (text.text.empty()) return;
+
     glBindTextureUnit(0, text.pFont->textureHandle);
     glUniform1f(glGetUniformLocation(_program, "pxRange"), text.pFont->pixelRange);
     glBindVertexArray(mesh.vao);

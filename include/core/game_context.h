@@ -4,14 +4,11 @@
 
 #include <entt/entt.hpp>
 
-#include "platform/input_handler.h"
 #include "utils/screen_info.h"
 #include "utils/game_state.h"
 
 struct GameContext
 {
-  entt::dispatcher dispatcher;
-  InputHandler inputHandler;
   ScreenInfo screenInfo;
   GameState currentState;
 };

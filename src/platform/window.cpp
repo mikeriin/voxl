@@ -2,6 +2,7 @@
 
 
 #include <SDL3/SDL_keycode.h>
+#include <entt/signal/fwd.hpp>
 #include <iostream>
 #include <memory>
 
@@ -13,6 +14,7 @@
 #include "core/game_context.h"
 #include "events/close_event.h"
 #include "events/resize_event.h"
+#include "platform/input_handler.h"
 
 
 Window::Window(entt::registry* registry)
@@ -64,18 +66,20 @@ bool Window::Init()
 void Window::PollEvent()
 {
   auto& gameCtx = _pRegistry->ctx().get<GameContext>();
+  auto& inputH = _pRegistry->ctx().get<InputHandler>();
+  auto& dispatcher = _pRegistry->ctx().get<entt::dispatcher>();
 
-  gameCtx.inputHandler.BeginFrame();
+  inputH.BeginFrame();
 
   SDL_Event e;
   while (SDL_PollEvent(&e)) 
   {
-    gameCtx.inputHandler.ProcessEvent(e);
+    inputH.ProcessEvent(e);
 
     switch (e.type)
     {
       case SDL_EVENT_QUIT:
-        gameCtx.dispatcher.enqueue<CloseEvent>({.shoulClose = true});
+        dispatcher.enqueue<CloseEvent>({.shoulClose = true});
       break;
         
       case SDL_EVENT_WINDOW_RESIZED:
@@ -83,7 +87,7 @@ void Window::PollEvent()
         int width = e.window.data1;
         int height = e.window.data2;
         resize(width, height);
-        gameCtx.dispatcher.enqueue<ResizeEvent>({.width = width, .height = height});
+        dispatcher.enqueue<ResizeEvent>({.width = width, .height = height});
       break;
       }
 
@@ -113,7 +117,7 @@ void Window::PollEvent()
     }
   }
 
-  if (gameCtx.inputHandler.IsKeyPressed(SDLK_F11))
+  if (inputH.IsKeyPressed(SDLK_F11))
   {
     SDL_SetWindowFullscreen(_pNativeWindow.get(), !gameCtx.screenInfo.isFullScreen);
   }

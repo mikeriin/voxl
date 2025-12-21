@@ -27,19 +27,18 @@ public:
   bool Init();
 
   void Update();
+  void UpdateHistory(const std::string& buffer);
 
   void OnResize(const ResizeEvent& e);
 
 private:
   entt::registry* _pRegistry;
-  entt::entity _entity;
 
   std::string _buffer;
   entt::entity _historyEntity;
   std::deque<std::string> _history;
   Font _font;
-
-  void updateHistory(const std::string& buffer);
+  
   std::string getHistoryAsText() const;
   void resetHistoryTimer(double time, bool isActive);
 };

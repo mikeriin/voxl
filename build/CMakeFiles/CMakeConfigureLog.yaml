@@ -5878,8 +5878,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-mn0hks"
-      binary: "E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-mn0hks"
+      source: "E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-0duk44"
+      binary: "E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-0duk44"
     cmakeVariables:
       CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "C:/Program Files/LLVM/bin/clang-scan-deps.exe"
       CMAKE_CXX_FLAGS: ""
@@ -5894,16 +5894,16 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-mn0hks'
+        Change Dir: 'E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-0duk44'
         
-        Run Build Command(s): C:/Users/gutie/AppData/Local/Microsoft/WinGet/Links/ninja.exe -v cmTC_fa2ce
-        [1/2] C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -D_MBCS  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -MD -MT CMakeFiles/cmTC_fa2ce.dir/CMakeCXXCompilerABI.cpp.obj -MF CMakeFiles\\cmTC_fa2ce.dir\\CMakeCXXCompilerABI.cpp.obj.d -o CMakeFiles/cmTC_fa2ce.dir/CMakeCXXCompilerABI.cpp.obj -c "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerABI.cpp"
-        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -nostartfiles -nostdlib -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -v -Xlinker /subsystem:console -fuse-ld=lld-link CMakeFiles/cmTC_fa2ce.dir/CMakeCXXCompilerABI.cpp.obj -o cmTC_fa2ce.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_fa2ce.lib -Xlinker /pdb:cmTC_fa2ce.pdb -Xlinker /version:0.0     && cd ."
+        Run Build Command(s): C:/Users/gutie/AppData/Local/Microsoft/WinGet/Links/ninja.exe -v cmTC_0ca2e
+        [1/2] C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -D_MBCS  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -MD -MT CMakeFiles/cmTC_0ca2e.dir/CMakeCXXCompilerABI.cpp.obj -MF CMakeFiles\\cmTC_0ca2e.dir\\CMakeCXXCompilerABI.cpp.obj.d -o CMakeFiles/cmTC_0ca2e.dir/CMakeCXXCompilerABI.cpp.obj -c "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerABI.cpp"
+        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -nostartfiles -nostdlib -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -v -Xlinker /subsystem:console -fuse-ld=lld-link CMakeFiles/cmTC_0ca2e.dir/CMakeCXXCompilerABI.cpp.obj -o cmTC_0ca2e.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_0ca2e.lib -Xlinker /pdb:cmTC_0ca2e.pdb -Xlinker /version:0.0     && cd ."
         clang version 21.1.7
         Target: x86_64-pc-windows-msvc
         Thread model: posix
         InstalledDir: C:\\Program Files\\LLVM\\bin
-         "C:\\\\Program Files\\\\LLVM\\\\bin\\\\lld-link" -out:cmTC_fa2ce.exe "-libpath:C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\18\\\\BuildTools\\\\VC\\\\Tools\\\\MSVC\\\\14.50.35717\\\\lib\\\\x64" "-libpath:C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\18\\\\BuildTools\\\\VC\\\\Tools\\\\MSVC\\\\14.50.35717\\\\atlmfc\\\\lib\\\\x64" "-libpath:C:\\\\Program Files (x86)\\\\Windows Kits\\\\10\\\\Lib\\\\10.0.26100.0\\\\ucrt\\\\x64" "-libpath:C:\\\\Program Files (x86)\\\\Windows Kits\\\\10\\\\Lib\\\\10.0.26100.0\\\\um\\\\x64" "-libpath:C:\\\\Program Files\\\\LLVM\\\\lib\\\\clang\\\\21\\\\lib\\\\windows" -nologo -debug /subsystem:console CMakeFiles/cmTC_fa2ce.dir/CMakeCXXCompilerABI.cpp.obj /MANIFEST:EMBED /implib:cmTC_fa2ce.lib /pdb:cmTC_fa2ce.pdb /version:0.0
+         "C:\\\\Program Files\\\\LLVM\\\\bin\\\\lld-link" -out:cmTC_0ca2e.exe "-libpath:C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\18\\\\BuildTools\\\\VC\\\\Tools\\\\MSVC\\\\14.50.35717\\\\lib\\\\x64" "-libpath:C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\18\\\\BuildTools\\\\VC\\\\Tools\\\\MSVC\\\\14.50.35717\\\\atlmfc\\\\lib\\\\x64" "-libpath:C:\\\\Program Files (x86)\\\\Windows Kits\\\\10\\\\Lib\\\\10.0.26100.0\\\\ucrt\\\\x64" "-libpath:C:\\\\Program Files (x86)\\\\Windows Kits\\\\10\\\\Lib\\\\10.0.26100.0\\\\um\\\\x64" "-libpath:C:\\\\Program Files\\\\LLVM\\\\lib\\\\clang\\\\21\\\\lib\\\\windows" -nologo -debug /subsystem:console CMakeFiles/cmTC_0ca2e.dir/CMakeCXXCompilerABI.cpp.obj /MANIFEST:EMBED /implib:cmTC_0ca2e.lib /pdb:cmTC_0ca2e.pdb /version:0.0
         
       exitCode: 0
   -
@@ -5967,8 +5967,8 @@ events:
     checks:
       - "Detecting CXX compile features"
     directories:
-      source: "E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-05fhyx"
-      binary: "E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-05fhyx"
+      source: "E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-bplzfn"
+      binary: "E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-bplzfn"
     cmakeVariables:
       CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "C:/Program Files/LLVM/bin/clang-scan-deps.exe"
       CMAKE_CXX_FLAGS: ""
@@ -5982,11 +5982,11 @@ events:
       variable: "CMAKE_CXX_FEATURE_TEST"
       cached: true
       stdout: |
-        Change Dir: 'E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-05fhyx'
+        Change Dir: 'E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-bplzfn'
         
-        Run Build Command(s): C:/Users/gutie/AppData/Local/Microsoft/WinGet/Links/ninja.exe -v cmTC_9a18e
-        [1/2] C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -D_MBCS  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd   -std=c++14 -MD -MT CMakeFiles/cmTC_9a18e.dir/feature_tests.cxx.obj -MF CMakeFiles\\cmTC_9a18e.dir\\feature_tests.cxx.obj.d -o CMakeFiles/cmTC_9a18e.dir/feature_tests.cxx.obj -c E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-05fhyx/feature_tests.cxx
-        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -nostartfiles -nostdlib -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Xlinker /subsystem:console -fuse-ld=lld-link CMakeFiles/cmTC_9a18e.dir/feature_tests.cxx.obj -o cmTC_9a18e.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_9a18e.lib -Xlinker /pdb:cmTC_9a18e.pdb -Xlinker /version:0.0   -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 -loldnames  && cd ."
+        Run Build Command(s): C:/Users/gutie/AppData/Local/Microsoft/WinGet/Links/ninja.exe -v cmTC_fbea8
+        [1/2] C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -D_MBCS  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd   -std=c++14 -MD -MT CMakeFiles/cmTC_fbea8.dir/feature_tests.cxx.obj -MF CMakeFiles\\cmTC_fbea8.dir\\feature_tests.cxx.obj.d -o CMakeFiles/cmTC_fbea8.dir/feature_tests.cxx.obj -c E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-bplzfn/feature_tests.cxx
+        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -nostartfiles -nostdlib -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Xlinker /subsystem:console -fuse-ld=lld-link CMakeFiles/cmTC_fbea8.dir/feature_tests.cxx.obj -o cmTC_fbea8.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_fbea8.lib -Xlinker /pdb:cmTC_fbea8.pdb -Xlinker /version:0.0   -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 -loldnames  && cd ."
         
       exitCode: 0
   -
@@ -6001,8 +6001,8 @@ events:
     checks:
       - "Detecting CXX compile features"
     directories:
-      source: "E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-hvpe67"
-      binary: "E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-hvpe67"
+      source: "E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-580bio"
+      binary: "E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-580bio"
     cmakeVariables:
       CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "C:/Program Files/LLVM/bin/clang-scan-deps.exe"
       CMAKE_CXX_FLAGS: ""
@@ -6016,11 +6016,11 @@ events:
       variable: "CMAKE_CXX_FEATURE_TEST"
       cached: true
       stdout: |
-        Change Dir: 'E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-hvpe67'
+        Change Dir: 'E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-580bio'
         
-        Run Build Command(s): C:/Users/gutie/AppData/Local/Microsoft/WinGet/Links/ninja.exe -v cmTC_d94cd
-        [1/2] C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -D_MBCS  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd   -std=c++14 -MD -MT CMakeFiles/cmTC_d94cd.dir/feature_tests.cxx.obj -MF CMakeFiles\\cmTC_d94cd.dir\\feature_tests.cxx.obj.d -o CMakeFiles/cmTC_d94cd.dir/feature_tests.cxx.obj -c E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-hvpe67/feature_tests.cxx
-        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -nostartfiles -nostdlib -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Xlinker /subsystem:console -fuse-ld=lld-link CMakeFiles/cmTC_d94cd.dir/feature_tests.cxx.obj -o cmTC_d94cd.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_d94cd.lib -Xlinker /pdb:cmTC_d94cd.pdb -Xlinker /version:0.0   -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 -loldnames  && cd ."
+        Run Build Command(s): C:/Users/gutie/AppData/Local/Microsoft/WinGet/Links/ninja.exe -v cmTC_315a7
+        [1/2] C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -D_MBCS  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd   -std=c++14 -MD -MT CMakeFiles/cmTC_315a7.dir/feature_tests.cxx.obj -MF CMakeFiles\\cmTC_315a7.dir\\feature_tests.cxx.obj.d -o CMakeFiles/cmTC_315a7.dir/feature_tests.cxx.obj -c E:/Projects/VoxL/build/CMakeFiles/CMakeScratch/TryCompile-580bio/feature_tests.cxx
+        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -nostartfiles -nostdlib -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Xlinker /subsystem:console -fuse-ld=lld-link CMakeFiles/cmTC_315a7.dir/feature_tests.cxx.obj -o cmTC_315a7.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_315a7.lib -Xlinker /pdb:cmTC_315a7.pdb -Xlinker /version:0.0   -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 -loldnames  && cd ."
         
       exitCode: 0
   -

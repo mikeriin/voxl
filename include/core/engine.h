@@ -38,6 +38,7 @@ private:
   Font _font;
 
   bool init();
+  void registerCommands();
 
   void onClose(const CloseEvent& e);
   void onGameStateChange(const GameStateChangeEvent& e);

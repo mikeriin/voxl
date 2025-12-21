@@ -10,6 +10,7 @@
 struct Command
 {
   std::string name;
+  std::string helper;
   std::function<void(const std::vector<std::string>&)> func;
 };
 

@@ -1,16 +1,23 @@
 #include "core/engine.h"
+#include <SDL3/SDL_video.h>
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <memory>
 #include <iostream>
 #include <chrono>
+#include <stdexcept>
+#include <string>
 
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_keycode.h>
 
 #include "core/game_context.h"
 #include "core/dev_console.h"
+#include "core/command.h"
+#include "core/command_manager.h"
+#include "core/command_manager.h"
 #include "platform/window.h"
+#include "platform/input_handler.h"
 #include "graphics/renderer.h"
 #include "loaders/font_loader.h"
 #include "events/resize_event.h"
@@ -26,15 +33,19 @@
 Engine::Engine() : _isRunning(true) {
   _pRegistry = std::make_unique<entt::registry>();
 
-  auto &game_ctx = _pRegistry->ctx().emplace<GameContext>();
-  game_ctx.dispatcher.sink<CloseEvent>().connect<&Engine::onClose>(this);
-  game_ctx.dispatcher.sink<GameStateChangeEvent>().connect<&Engine::onGameStateChange>(this);
+  _pRegistry->ctx().emplace<InputHandler>();
+  _pRegistry->ctx().emplace<CommandManager>();
+  
+  auto& dispatcher = _pRegistry->ctx().emplace<entt::dispatcher>();
+  auto &game_context = _pRegistry->ctx().emplace<GameContext>();
+  dispatcher.sink<CloseEvent>().connect<&Engine::onClose>(this);
+  dispatcher.sink<GameStateChangeEvent>().connect<&Engine::onGameStateChange>(this);
 
   _pWindow = std::make_unique<Window>(_pRegistry.get());
   _pRenderer = std::make_unique<Renderer>(_pRegistry.get(), _pWindow.get());
   _pDevConsole = std::make_unique<DevConsole>(_pRegistry.get());
 
-  game_ctx.dispatcher.sink<ResizeEvent>().connect<&DevConsole::OnResize>(_pDevConsole);
+  dispatcher.sink<ResizeEvent>().connect<&DevConsole::OnResize>(_pDevConsole);
 }
 
 Engine::~Engine() 
@@ -43,7 +54,8 @@ Engine::~Engine()
 }
 
 void Engine::Run() {
-  auto &game_ctx = _pRegistry->ctx().get<GameContext>();
+  auto& game_context = _pRegistry->ctx().get<GameContext>();
+  auto& dispatcher = _pRegistry->ctx().emplace<entt::dispatcher>();
 
   if (!init()) {
     std::cerr << "[Engine] Failed to init engine\n";
@@ -74,7 +86,7 @@ void Engine::Run() {
     _pRenderer->Render();
     _pRenderer->EndFrame();
 
-    game_ctx.dispatcher.update();
+    dispatcher.update();
   }
 }
 
@@ -102,15 +114,78 @@ bool Engine::init() {
   _pRegistry->emplace<TextMesh>(e, mesh);
 
 
-  _pRenderer->UpdateFont();
-
+  _pRenderer->UpdateFont(); // TODO! créer un gestionnaire de resources, pour le moment cette fonction créée un shader pour afficher du text
+  
+  registerCommands();
   return true;
 }
+
+
+void Engine::registerCommands()
+{
+  auto& command_manager = _pRegistry->ctx().get<CommandManager>();
+
+  // on enregistre la commande exit qui permettra de quitter le jeu
+  // chaque commande commence par le symbole $
+  // interprétation des commandes dans DevConsole
+  // ça sera toujours la même boucle
+  std::string helper = "?> $exit";
+  command_manager.Register(Command{
+    .name = "exit",
+    .helper = helper,
+    .func = [this, helper](auto& args)
+    {
+      try {
+        // s'il y a des arguments alors on renvoit une erreur sinon on quitte le program
+        if (!args.empty()) throw std::out_of_range("[Engine] $exit doesn't accept args");
+        this->_isRunning = false;
+      } 
+      // la dite erreur
+      catch (const std::out_of_range &e) 
+      {
+        _pDevConsole->UpdateHistory(helper); // affiche le helper dans la console développeur
+        std::cerr << e.what() << "\n"; // afficher la raison pour laquelle la commande n'a pas été exécuté, coté code
+      }
+    }
+  });
+
+  // activer/désactiver le fullscreen
+  helper = "?> $fullscreen <0/1>";
+  command_manager.Register(Command{
+    .name = "fullscreen",
+    .helper = helper,
+    .func = [this, helper](auto& args)
+    {
+      try {
+        if (args.size() > 1) throw std::out_of_range("[Engine] $fullscreen accepts only 1 arg");
+        
+        size_t last_valid_index;
+        int toggle_fullscreen = std::stoi(args[0], &last_valid_index);
+        if (last_valid_index != args[0].size() || (toggle_fullscreen != 0 && toggle_fullscreen != 1)) throw std::invalid_argument("[Engine] args[0] must be 1 or 0");
+
+        SDL_SetWindowFullscreen(_pWindow->GetNativeWindow(), (bool) toggle_fullscreen);
+      } 
+      // la dite erreur
+      catch (const std::out_of_range& e) 
+      {
+        _pDevConsole->UpdateHistory(helper);
+        std::cerr << e.what() << "\n";
+      }
+      catch (const std::invalid_argument& e)
+      {
+        _pDevConsole->UpdateHistory(helper);
+        std::cerr << e.what() << "\n";
+      }
+    }
+  });
+}
+
 
 void Engine::onClose(const CloseEvent &e) {
   std::cout << "[Engine] " << e.name << " called\n";
   _isRunning = !e.shoulClose;
 }
+
 
 void Engine::onGameStateChange(const GameStateChangeEvent& e)
 {

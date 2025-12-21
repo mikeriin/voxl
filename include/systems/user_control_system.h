@@ -15,12 +15,14 @@ struct UserControlSystem
 {
   void Update(entt::registry& registry)
   {
-    auto& game_ctx = registry.ctx().get<GameContext>();
+    auto& game_context = registry.ctx().get<GameContext>();
+    auto& input_handler = registry.ctx().get<InputHandler>();
+    auto& dispatcher = registry.ctx().get<entt::dispatcher>();
 
-    if (game_ctx.currentState == GameState::IN_GAME)
+    if (game_context.currentState == GameState::IN_GAME)
     {
-      if (game_ctx.inputHandler.IsKeyPressed(SDLK_SEMICOLON) || game_ctx.inputHandler.IsKeyPressed(SDLK_SLASH)) 
-        game_ctx.dispatcher.enqueue<GameStateChangeEvent>({.newState = GameState::CONSOLE});
+      if (input_handler.IsKeyPressed(SDLK_SEMICOLON) || input_handler.IsKeyPressed(SDLK_SLASH)) 
+        dispatcher.enqueue<GameStateChangeEvent>({.newState = GameState::CONSOLE});
     }
   }
 };
