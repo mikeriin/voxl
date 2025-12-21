@@ -7,14 +7,16 @@
 
 #include <SDL3/SDL_keycode.h>
 #include <vector>
+using namespace entt::literals;
 
 #include "core/command_manager.h"
 #include "core/console_context.h"
-#include "core/game_context.h"
+#include "core/engine_context.h"
 #include "events/game_state_change_event.h"
-#include "loaders/font_loader.h"
+#include "core/resource_manager.h"
 #include "loaders/obj_loader.h"
 #include "platform/input_handler.h"
+#include "resources/font.h"
 #include "utils/create_text_mesh.h"
 #include "utils/game_state.h"
 #include "components/text.h"
@@ -37,23 +39,23 @@ DevConsole::~DevConsole() {}
 
 bool DevConsole::Init()
 {
-  _font = LoadFont("roboto_mono");
+  const auto& font = _pRegistry->ctx().get<ResourceManager>().GetByID<Font>("font_roboto_mono"_hs).handle().get();
 
-  auto& game_context = _pRegistry->ctx().get<GameContext>();
+  auto& engine_context = _pRegistry->ctx().get<EngineContext>();
   
   auto e = _pRegistry->create();
   _pRegistry->emplace<Console>(e);
   _pRegistry->emplace<Mesh>(e, LoadOBJ("ui_quad", {0.0f, 0.0f, 0.0f, 0.5f}));
   _pRegistry->emplace<Transform>(e, Transform{
-    .position = {5.0f, (float) game_context.screenInfo.height - (CONSOLE_FONT_SIZE * 0.25f), 0.0f},
+    .position = {5.0f, (float) engine_context.screenInfo.height - (CONSOLE_FONT_SIZE * 0.25f), 0.0f},
     .rotation = {0.0f, 0.0f, 0.0f},
-    .scale = { (float) game_context.screenInfo.width - 10.0f, CONSOLE_FONT_SIZE * 1.5f, 1.0f }
+    .scale = { (float) engine_context.screenInfo.width - 10.0f, CONSOLE_FONT_SIZE * 1.5f, 1.0f }
   });
   auto& text = _pRegistry->emplace<Text>(e, Text{
     .text = "",
-    .pFont = &_font,
+    .pFont = font,
     .fontSize = CONSOLE_FONT_SIZE,
-    .position = {10.0f, (float) game_context.screenInfo.height - BUFFER_Y_OFFSET, 0.0f}
+    .position = {10.0f, (float) engine_context.screenInfo.height - BUFFER_Y_OFFSET, 0.0f}
   });
   _pRegistry->emplace<TextMesh>(e, CreateTextMesh(text));
 
@@ -63,12 +65,12 @@ bool DevConsole::Init()
 
 void DevConsole::Update()
 {
-  auto& game_context = _pRegistry->ctx().get<GameContext>();
+  auto& engine_context = _pRegistry->ctx().get<EngineContext>();
   auto& input_handler = _pRegistry->ctx().get<InputHandler>();
   auto& dispatcher = _pRegistry->ctx().get<entt::dispatcher>();
   auto console_entity = GetUnique<Console>(*_pRegistry);
   
-  if (game_context.currentState != GameState::CONSOLE) return; // pas besoin d'update la console, on ne l'utilise pas
+  if (engine_context.currentState != GameState::CONSOLE) return; // pas besoin d'update la console, on ne l'utilise pas
   
   // on modifie le buffer de la console avant de générer le text qui sera affiché
   std::string temp_buffer = "> " + _buffer;
@@ -108,6 +110,7 @@ void DevConsole::Update()
   }
   else 
   {
+    const auto& font = _pRegistry->ctx().get<ResourceManager>().Get<Font>("font_roboto_mono").handle().get();
     _historyEntity = _pRegistry->create();
     _pRegistry->emplace<Timer>(_historyEntity, 
       Timer{
@@ -116,9 +119,9 @@ void DevConsole::Update()
       });
     auto& text = _pRegistry->emplace<Text>(_historyEntity, Text{
       .text = getHistoryAsText(),
-      .pFont = &_font,
+      .pFont = font,
       .fontSize = CONSOLE_FONT_SIZE,
-      .position = {10.0f, (float) game_context.screenInfo.height - HISTORY_Y_OFFSET, 0.0f}
+      .position = {10.0f, (float) engine_context.screenInfo.height - HISTORY_Y_OFFSET, 0.0f}
     });
     _pRegistry->emplace<TextMesh>(_historyEntity, TextMesh{ CreateTextMesh(text) });
   }

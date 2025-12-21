@@ -1,4 +1,5 @@
 #include "core/engine.h"
+#include "resources/font.h"
 #include <SDL3/SDL_video.h>
 #define STB_IMAGE_IMPLEMENTATION
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -11,13 +12,16 @@
 
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_keycode.h>
+#include <entt/entt.hpp>
+using namespace entt::literals;
 
-#include "core/game_context.h"
+#include "core/engine_context.h"
 #include "core/dev_console.h"
 #include "core/command.h"
 #include "core/command_manager.h"
 #include "core/command_manager.h"
 #include "core/console_context.h"
+#include "core/resource_manager.h"
 #include "platform/window.h"
 #include "platform/input_handler.h"
 #include "graphics/renderer.h"
@@ -32,12 +36,13 @@
 Engine::Engine() : _isRunning(true) {
   _pRegistry = std::make_unique<entt::registry>();
 
+  _pRegistry->ctx().emplace<ResourceManager>();
   _pRegistry->ctx().emplace<InputHandler>();
   _pRegistry->ctx().emplace<CommandManager>();
   _pRegistry->ctx().emplace<ConsoleContext>();
   
   auto& dispatcher = _pRegistry->ctx().emplace<entt::dispatcher>();
-  auto &game_context = _pRegistry->ctx().emplace<GameContext>();
+  auto &engine_context = _pRegistry->ctx().emplace<EngineContext>();
   dispatcher.sink<CloseEvent>().connect<&Engine::onClose>(this);
   dispatcher.sink<GameStateChangeEvent>().connect<&Engine::onGameStateChange>(this);
 
@@ -54,7 +59,7 @@ Engine::~Engine()
 }
 
 void Engine::Run() {
-  auto& game_context = _pRegistry->ctx().get<GameContext>();
+  auto& engine_context = _pRegistry->ctx().get<EngineContext>();
   auto& dispatcher = _pRegistry->ctx().emplace<entt::dispatcher>();
 
   if (!init()) {
@@ -96,10 +101,12 @@ bool Engine::init() {
     return false;
   if (!_pRenderer->Init())
     return false;
+
+  auto& resource_manager = _pRegistry->ctx().get<ResourceManager>();
+  resource_manager.LoadByID<Font>("font_roboto_mono"_hs, "roboto_mono");
+  
   if (!_pDevConsole->Init())
     return false;
-
-  _font = LoadFont("roboto");
   
   registerCommands();
   return true;
@@ -220,5 +227,5 @@ void Engine::onGameStateChange(const GameStateChangeEvent& e)
   break;
   }
 
-  _pRegistry->ctx().get<GameContext>().currentState = e.newState;
+  _pRegistry->ctx().get<EngineContext>().currentState = e.newState;
 }

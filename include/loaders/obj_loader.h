@@ -7,11 +7,13 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <memory>
 
 #include <tiny_obj_loader.h>
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
+#include "components/mesh.h"
 #include "components/mesh.h"
 
 
@@ -26,7 +28,22 @@ struct TinyObjIndexComp
 };
 
 
-inline Mesh LoadOBJ(const std::string& name, glm::vec4 color = glm::vec4(1.0f))
+inline Mesh LoadOBJ(const std::string& name, const glm::vec4& color = glm::vec4(1.0f));
+
+
+struct OBJLoader
+{
+  using result_type = std::shared_ptr<Mesh>;
+
+  result_type operator()(const std::string& name, const glm::vec4& color = glm::vec4(1.0f))
+  {
+    Mesh mesh = LoadOBJ(name, color);
+    return std::make_shared<Mesh>(mesh);
+  }
+};
+
+
+inline Mesh LoadOBJ(const std::string& name, const glm::vec4& color)
 {
   std::string obj_path = "assets/models/" + name + ".obj";
   std::string mtl_path = "assets/models/";

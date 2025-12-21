@@ -7,7 +7,6 @@
 
 #include <entt/entt.hpp>
 
-#include "resources/font.h"
 #include "events/resize_event.h"
 
 
@@ -37,7 +36,6 @@ private:
   std::string _buffer;
   entt::entity _historyEntity;
   std::deque<std::string> _history;
-  Font _font;
   
   std::string getHistoryAsText() const;
   void resetHistoryTimer(double time, bool isActive);

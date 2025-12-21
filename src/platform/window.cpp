@@ -11,7 +11,7 @@
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_error.h>
 
-#include "core/game_context.h"
+#include "core/engine_context.h"
 #include "events/close_event.h"
 #include "events/resize_event.h"
 #include "platform/input_handler.h"
@@ -30,7 +30,7 @@ Window::~Window()
 
 bool Window::Init()
 {
-  auto& gameCtx = _pRegistry->ctx().get<GameContext>();
+  auto& engine_context = _pRegistry->ctx().get<EngineContext>();
 
   if (!SDL_Init(SDL_INIT_VIDEO))
   {
@@ -54,7 +54,7 @@ bool Window::Init()
   }
 
   resize(WINDOW_WIDTH, WINDOW_HEIGHT);
-  auto& screenInfo = gameCtx.screenInfo;
+  auto& screenInfo = engine_context.screenInfo;
   screenInfo.isFocused = false;
   screenInfo.isFullScreen = false;
   screenInfo.isMinimized = false;
@@ -65,7 +65,7 @@ bool Window::Init()
 
 void Window::PollEvent()
 {
-  auto& gameCtx = _pRegistry->ctx().get<GameContext>();
+  auto& engine_context = _pRegistry->ctx().get<EngineContext>();
   auto& inputH = _pRegistry->ctx().get<InputHandler>();
   auto& dispatcher = _pRegistry->ctx().get<entt::dispatcher>();
 
@@ -92,34 +92,34 @@ void Window::PollEvent()
       }
 
       case SDL_EVENT_WINDOW_FOCUS_LOST:
-        gameCtx.screenInfo.isFocused = false;
+        engine_context.screenInfo.isFocused = false;
       break;
 
       case SDL_EVENT_WINDOW_FOCUS_GAINED:
-        gameCtx.screenInfo.isFocused = true;
+        engine_context.screenInfo.isFocused = true;
       break;
 
       case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
-        gameCtx.screenInfo.isFullScreen = false;
+        engine_context.screenInfo.isFullScreen = false;
       break;
 
       case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
-        gameCtx.screenInfo.isFullScreen = true;
+        engine_context.screenInfo.isFullScreen = true;
       break;
 
       case SDL_EVENT_WINDOW_MINIMIZED:
-        gameCtx.screenInfo.isMinimized = true;
+        engine_context.screenInfo.isMinimized = true;
       break;
 
       case SDL_EVENT_WINDOW_RESTORED:
-        gameCtx.screenInfo.isMinimized = false;
+        engine_context.screenInfo.isMinimized = false;
       break;
     }
   }
 
   if (inputH.IsKeyPressed(SDLK_F11))
   {
-    SDL_SetWindowFullscreen(_pNativeWindow.get(), !gameCtx.screenInfo.isFullScreen);
+    SDL_SetWindowFullscreen(_pNativeWindow.get(), !engine_context.screenInfo.isFullScreen);
   }
 }
 
@@ -138,7 +138,7 @@ SDL_Window* Window::GetNativeWindow()
 
 void Window::resize(int width, int height)
 {
-  auto& screenInfo = _pRegistry->ctx().get<GameContext>().screenInfo;
+  auto& screenInfo = _pRegistry->ctx().get<EngineContext>().screenInfo;
   screenInfo.width = width;
   screenInfo.height = height;
   screenInfo.aspectRatio = (height > 0) ? (float)width / (float)height : 1.0f;

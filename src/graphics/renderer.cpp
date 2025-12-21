@@ -11,7 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "core/console_context.h"
-#include "core/game_context.h"
+#include "core/engine_context.h"
 #include "core/command_manager.h"
 #include "core/command.h"
 #include "platform/window.h"
@@ -69,8 +69,8 @@ bool Renderer::Init()
     return false;
   }
 
-  auto& game_context = _pRegistry->ctx().get<GameContext>();
-  glViewport(0, 0, game_context.screenInfo.width, game_context.screenInfo.height);
+  auto& engine_context = _pRegistry->ctx().get<EngineContext>();
+  glViewport(0, 0, engine_context.screenInfo.width, engine_context.screenInfo.height);
   glClearColor(0.773f, 0.729f, 1.0f, 1.0f);
 
   registerCommands();
@@ -78,7 +78,7 @@ bool Renderer::Init()
   _pTextShader = new Shader{ LoadShader("msdf_font") };
   _pUIShader = new Shader{ LoadShader("ui") };
 
-  _ortho = glm::ortho(0.0f, (float)game_context.screenInfo.width, 0.0f, (float)game_context.screenInfo.height, -1.0f, 1.0f);
+  _ortho = glm::ortho(0.0f, (float)engine_context.screenInfo.width, 0.0f, (float)engine_context.screenInfo.height, -1.0f, 1.0f);
 
   return true;
 }
@@ -86,7 +86,7 @@ bool Renderer::Init()
 
 void Renderer::BeginFrame()
 {
-  auto& screenInfo = _pRegistry->ctx().get<GameContext>().screenInfo;
+  auto& screenInfo = _pRegistry->ctx().get<EngineContext>().screenInfo;
   if (screenInfo.isMinimized) return;
 
   glClear(GL_COLOR_BUFFER_BIT);
