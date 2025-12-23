@@ -39,7 +39,8 @@ Engine::Engine() : _isRunning(true) {
   _pRegistry->ctx().emplace<ResourceManager>();
   _pRegistry->ctx().emplace<InputHandler>();
   _pRegistry->ctx().emplace<CommandManager>();
-  _pRegistry->ctx().emplace<ConsoleContext>();
+  auto& console_context = _pRegistry->ctx().emplace<ConsoleContext>();
+  // console_context.isOpen = false;
   
   auto& dispatcher = _pRegistry->ctx().emplace<entt::dispatcher>();
   auto &engine_context = _pRegistry->ctx().emplace<EngineContext>();
@@ -60,6 +61,7 @@ Engine::~Engine()
 
 void Engine::Run() {
   auto& engine_context = _pRegistry->ctx().get<EngineContext>();
+  auto& console_context = _pRegistry->ctx().get<ConsoleContext>();
   auto& dispatcher = _pRegistry->ctx().emplace<entt::dispatcher>();
 
   if (!init()) {
@@ -86,9 +88,10 @@ void Engine::Run() {
     user_control_sys.Update(*_pRegistry);
     timer_sys.Update(*_pRegistry, delta_time);
 
-    _pDevConsole->Update();
+    // _pDevConsole->Update();
     
     _pRenderer->BeginFrame();
+    if (console_context.isOpen) _pDevConsole->OpenDevConsole(&console_context.isOpen);
     _pRenderer->Render();
     _pRenderer->EndFrame();
 
@@ -116,6 +119,7 @@ bool Engine::init() {
 void Engine::registerCommands()
 {
   auto& command_manager = _pRegistry->ctx().get<CommandManager>();
+  auto& console_context = _pRegistry->ctx().get<ConsoleContext>();
 
   // on enregistre la commande exit qui permettra de quitter le jeu
   // chaque commande commence par le symbole $
@@ -147,7 +151,7 @@ void Engine::registerCommands()
   command_manager.Register(Command{
     .name = "fullscreen",
     .helper = helper,
-    .func = [this, helper](auto& args)
+    .func = [this, helper, &console_context](auto& args)
     {
       try {
         if (args.size() > 1) throw std::out_of_range("[Engine] $fullscreen accepts only 1 arg");
@@ -161,12 +165,12 @@ void Engine::registerCommands()
       // la dite erreur
       catch (const std::out_of_range& e) 
       {
-        _pDevConsole->UpdateHistory(helper);
+        console_context.helperBuffer.insert_or_assign("fullscreen", helper);
         std::cerr << e.what() << "\n";
       }
       catch (const std::invalid_argument& e)
       {
-        _pDevConsole->UpdateHistory(helper);
+        console_context.helperBuffer.insert_or_assign("fullscreen", helper);
         std::cerr << e.what() << "\n";
       }
     }
@@ -178,25 +182,26 @@ void Engine::registerCommands()
 void Engine::registerHelpCommand()
 {
   auto& command_manager = _pRegistry->ctx().get<CommandManager>();
+  auto& console_context = _pRegistry->ctx().get<ConsoleContext>();
   std::string helper = "?> $help --> display available commands";
   command_manager.Register(Command{
     .name = "help",
     .helper = helper,
-    .func = [this, helper, &command_manager](auto& args)
+    .func = [this, helper, &command_manager, &console_context](auto& args)
     {
       try {
         // s'il y a des arguments alors on renvoit une erreur sinon on quitte le program
         if (!args.empty()) throw std::out_of_range("[Engine] $help doesn't accept args");
         
-        for (const auto& helper: command_manager.GetCommands()) 
+        for (const auto& h: command_manager.GetCommands()) 
         {
-          _pDevConsole->UpdateHistory(helper.second.helper);
+          console_context.helperBuffer.insert_or_assign("help", h.second.helper);
         }
       } 
       // la dite erreur
       catch (const std::out_of_range &e) 
       {
-        _pDevConsole->UpdateHistory(helper); // affiche le helper dans la console développeur
+        console_context.helperBuffer.insert_or_assign("help", helper); // affiche le helper dans la console développeur
         std::cerr << e.what() << "\n"; // afficher la raison pour laquelle la commande n'a pas été exécuté, coté code
       }
     }

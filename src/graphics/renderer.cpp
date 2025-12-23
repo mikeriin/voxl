@@ -9,6 +9,9 @@
 #include <SDL3/SDL_video.h>
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_sdl3.h>
+#include <imgui/imgui_impl_opengl3.h>
 
 #include "core/console_context.h"
 #include "core/engine_context.h"
@@ -49,6 +52,10 @@ Renderer::~Renderer()
   });
 
   if (_glCtx) SDL_GL_DestroyContext(_glCtx);
+
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplSDL3_Shutdown();
+  ImGui::DestroyContext();
 }
 
 
@@ -68,6 +75,15 @@ bool Renderer::Init()
     std::cerr << "[Renderer] Faile to load GL\n";
     return false;
   }
+
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO();
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+  ImGui_ImplSDL3_InitForOpenGL(_pWindow->GetNativeWindow(), _glCtx);
+  ImGui_ImplOpenGL3_Init();
 
   auto& engine_context = _pRegistry->ctx().get<EngineContext>();
   glViewport(0, 0, engine_context.screenInfo.width, engine_context.screenInfo.height);
@@ -89,12 +105,19 @@ void Renderer::BeginFrame()
   auto& screenInfo = _pRegistry->ctx().get<EngineContext>().screenInfo;
   if (screenInfo.isMinimized) return;
 
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplSDL3_NewFrame();
+  ImGui::NewFrame();
+  
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
 
 void Renderer::EndFrame()
 {
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
   if (_pWindow)
     _pWindow->SwapBuffers();
 }
@@ -167,12 +190,12 @@ void Renderer::registerCommands()
       // la dite erreur
       catch (const std::out_of_range& e) 
       {
-        console_context.historyBuffer.insert_or_assign(name, helper);
+        console_context.helperBuffer.insert_or_assign(name, helper);
         std::cerr << e.what() << "\n";
       }
       catch (const std::invalid_argument& e)
       {
-        console_context.historyBuffer.insert_or_assign(name, helper);
+        console_context.helperBuffer.insert_or_assign(name, helper);
         std::cerr << e.what() << "\n";
       }
     }
@@ -202,12 +225,12 @@ void Renderer::registerCommands()
       // la dite erreur
       catch (const std::out_of_range& e) 
       {
-        console_context.historyBuffer.insert_or_assign(name, helper);
+        console_context.helperBuffer.insert_or_assign(name, helper);
         std::cerr << e.what() << "\n";
       }
       catch (const std::invalid_argument& e)
       {
-        console_context.historyBuffer.insert_or_assign(name, helper);
+        console_context.helperBuffer.insert_or_assign(name, helper);
         std::cerr << e.what() << "\n";
       }
     }

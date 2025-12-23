@@ -3,6 +3,7 @@
 
 
 struct Console{};
+struct Canvas{};
 
 
 #endif // !VOXL_TAGS_H

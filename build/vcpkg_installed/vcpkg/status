@@ -111,3 +111,12 @@ Abi: 8699786431cfeae1cd17334d35e7bd13f288c5ee57fcc10bf9a02b2d5775b3b3
 Description: Tiny but powerful single file wavefront obj loader
 Status: install ok installed
 
+Package: imgui
+Version: 1.91.9
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: b72e6237a8a97295703ae8b65b2cbeeedec948cdc4bc76ec0b0f9b97287b1df7
+Description: Bloat-free Immediate Mode Graphical User interface for C++ with minimal dependencies.
+Status: purge ok not-installed
+

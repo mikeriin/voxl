@@ -10,6 +10,7 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_error.h>
+#include <imgui/imgui_impl_sdl3.h>
 
 #include "core/engine_context.h"
 #include "events/close_event.h"
@@ -74,6 +75,8 @@ void Window::PollEvent()
   SDL_Event e;
   while (SDL_PollEvent(&e)) 
   {
+    ImGui_ImplSDL3_ProcessEvent(&e); 
+    
     inputH.ProcessEvent(e);
 
     switch (e.type)

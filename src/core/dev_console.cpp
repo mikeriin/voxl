@@ -2,12 +2,14 @@
 
 
 #include <iostream>
+#include <string.h>
 #include <string>
 #include <sstream>
+#include <vector>
 
 #include <SDL3/SDL_keycode.h>
-#include <vector>
 using namespace entt::literals;
+#include <imgui/imgui.h>
 
 #include "core/command_manager.h"
 #include "core/console_context.h"
@@ -31,6 +33,7 @@ using namespace entt::literals;
 DevConsole::DevConsole(entt::registry* registry)
   : _pRegistry(registry)
 {
+  _inputBuffer[0] = '\0';
   _buffer = "";
 }
 
@@ -159,10 +162,10 @@ void DevConsole::Update()
 
           // dans le cas ou Execute est appelé ailleurs de dans la classe Engine, les autres classes n'ont pas accès à DevConsole
           auto& console_context = _pRegistry->ctx().emplace<ConsoleContext>();
-          if (console_context.historyBuffer.contains(name)) 
+          if (console_context.helperBuffer.contains(name)) 
           {
-            UpdateHistory(console_context.historyBuffer.at(name));
-            console_context.historyBuffer.erase(name);
+            UpdateHistory(console_context.helperBuffer.at(name));
+            console_context.helperBuffer.erase(name);
           }
 
           if (!does_cmd_exist) UpdateHistory("!> " + CMD_NAME + " doesn't exist");
@@ -192,6 +195,108 @@ void DevConsole::Update()
 
     dispatcher.enqueue<GameStateChangeEvent>({.newState = GameState::IN_GAME});
   }
+}
+
+
+void DevConsole::OpenDevConsole(bool* pOpen)
+{
+  if (!pOpen || !(*pOpen))
+    return;
+
+  ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.075f, 0.075f, 0.075f, 1.0f));
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+  ImGui::SetNextWindowSize(ImVec2(DEV_CONSOLE_WIDTH, DEV_CONSOLE_HEIGHT), ImGuiCond_FirstUseEver);
+
+  ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar 
+    | ImGuiWindowFlags_NoCollapse 
+    | ImGuiWindowFlags_NoResize;
+
+  if (ImGui::Begin("DevConsole", pOpen, window_flags))
+  {
+    float footer_height = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+
+    ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, 0.0f);
+    ImGui::BeginChild("History", ImVec2(0, -footer_height), false);
+    
+    for (const auto& item : _items) ImGui::TextWrapped("%s", item.c_str()); 
+
+    if (_scrollToBottom || ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+    {
+      ImGui::SetScrollHereY(1.0f);
+      _scrollToBottom = false;
+    }
+    
+    ImGui::EndChild();
+    ImGui::PopStyleVar();
+
+    if (ImGui::IsWindowAppearing())
+      ImGui::SetKeyboardFocusHere();
+    
+    ImGui::PushItemWidth(-1);
+    
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.075f, 0.075f, 0.075f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_TextDisabled, ImVec4(1.0f, 1.0f, 1.0f, 0.15f));
+    ImGui::PushStyleColor(ImGuiCol_InputTextCursor, ImVec4(1.0f, 1.0f, 1.0f, 0.3f));
+    ImGui::PushStyleColor(ImGuiCol_TextSelectedBg, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
+    bool enter_pressed = ImGui::InputTextWithHint("##cmd", "$", _inputBuffer, IM_ARRAYSIZE(_inputBuffer), ImGuiInputTextFlags_EnterReturnsTrue);
+    ImGui::PopStyleColor(4);
+    if (enter_pressed) 
+    {
+      if (strlen(_inputBuffer) > 0)
+      {
+        std::vector<std::string> tokens;
+        std::stringstream ss(_inputBuffer);
+        std::string word;
+
+        // on fait juste du parsing
+        while (std::getline(ss, word, ' ')) 
+        {
+          tokens.push_back(word);
+        }
+
+        if (!tokens.empty())
+        {
+          // c'est une commande et elle à un nom donc on la process
+          const std::string& CMD_NAME = tokens[0];
+          if (CMD_NAME.size() > 0 && CMD_NAME[0] == '$')
+          {
+            // on récupère les arguments s'il y en a, sinon args sera un vecteur vide ce qui correspond aux commandes sans arguments
+            std::vector<std::string> args;
+            if (tokens.size() > 1) args.assign(tokens.begin() + 1, tokens.end());
+
+            auto& command_manager = _pRegistry->ctx().get<CommandManager>();
+            std::string name = CMD_NAME.substr(1);
+            bool does_cmd_exist = command_manager.Execute(name, args);
+
+            // dans le cas ou Execute est appelé ailleurs de dans la classe Engine, les autres classes n'ont pas accès à DevConsole
+            auto& console_context = _pRegistry->ctx().emplace<ConsoleContext>();
+            if (console_context.helperBuffer.contains(name)) 
+            {
+              _items.push_back(console_context.helperBuffer.at(name));
+              console_context.helperBuffer.erase(name);
+            }
+
+            if (!does_cmd_exist) _items.push_back(std::string("!> ") + CMD_NAME + std::string(" doesn't exist"));
+          }
+        }
+
+        _items.push_back(std::string("~> ") + _inputBuffer);
+
+        _inputBuffer[0] = '\0';
+        _scrollToBottom = true;
+      }
+
+      ImGui::SetKeyboardFocusHere(-1);
+    }
+
+    ImGui::PopItemWidth();
+  }
+
+  ImGui::End();
+  ImGui::PopStyleVar(2);
+  ImGui::PopStyleColor(1);
 }
 
 

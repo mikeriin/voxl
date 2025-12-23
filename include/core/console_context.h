@@ -8,7 +8,8 @@
 
 struct ConsoleContext
 {
-  std::unordered_map<std::string, std::string> historyBuffer;
+  std::unordered_map<std::string, std::string> helperBuffer;
+  bool isOpen = false;
 };
 
 

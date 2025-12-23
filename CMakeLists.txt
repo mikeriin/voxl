@@ -21,15 +21,20 @@ find_package(OpenGL REQUIRED)
 
 # récupérer tous les fichier .cpp du projet
 file(GLOB_RECURSE PROJECT_SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE IMGUI_SOURCES "${CMAKE_SOURCE_DIR}/include/thirdparty/*.cpp")
 
 # créer l'exécutable
 add_executable(voxl 
   ${PROJECT_SOURCES}
+  ${IMGUI_SOURCES}
   main.cpp
 )
 
 # permet de faire #include <header.h>
-target_include_directories(voxl PRIVATE "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(voxl PRIVATE
+  "${CMAKE_SOURCE_DIR}/include"
+  "${CMAKE_SOURCE_DIR}/include/thirdparty"
+)
 
 # lier les librairies
 target_link_libraries(voxl PRIVATE 
