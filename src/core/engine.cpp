@@ -26,9 +26,9 @@ using namespace entt::literals;
 #include "platform/input_handler.h"
 #include "graphics/renderer.h"
 #include "loaders/font_loader.h"
-#include "events/resize_event.h"
 #include "events/close_event.h"
 #include "events/game_state_change_event.h"
+#include "events/dev_console_message_event.h"
 #include "systems/user_control_system.h"
 #include "systems/timer_system.h"
 
@@ -50,8 +50,6 @@ Engine::Engine() : _isRunning(true) {
   _pWindow = std::make_unique<Window>(_pRegistry.get());
   _pRenderer = std::make_unique<Renderer>(_pRegistry.get(), _pWindow.get());
   _pDevConsole = std::make_unique<DevConsole>(_pRegistry.get());
-
-  dispatcher.sink<ResizeEvent>().connect<&DevConsole::OnResize>(_pDevConsole.get());
 }
 
 Engine::~Engine() 
@@ -78,6 +76,12 @@ void Engine::Run() {
   double delta_time;
 
   registerHelpCommand(); // maintenant on peut faire $help et afficher tous les helper !
+
+  dispatcher.enqueue(DevConsoleMessageEvent{
+    .level = DebugLevel::INFO,
+    .buffer = "Engine ready"
+  });
+
   while (_isRunning) {
     auto current_frame_time = std::chrono::steady_clock::now();
     delta_time = std::chrono::duration<double>(current_frame_time - last_frame_time).count();
@@ -87,11 +91,11 @@ void Engine::Run() {
 
     user_control_sys.Update(*_pRegistry);
     timer_sys.Update(*_pRegistry, delta_time);
-
-    // _pDevConsole->Update();
     
     _pRenderer->BeginFrame();
-    if (console_context.isOpen) _pDevConsole->OpenDevConsole(&console_context.isOpen);
+    // on utilise imgui pour afficher la console donc l'update est appelé ici
+    // BeginFrame initialise la frame ingui et doit impérativement être appelé avant toutes autres fonctions d'affichage imgui
+    if (console_context.isOpen) _pDevConsole->OpenDevConsole(&console_context.isOpen); 
     _pRenderer->Render();
     _pRenderer->EndFrame();
 
@@ -119,27 +123,32 @@ bool Engine::init() {
 void Engine::registerCommands()
 {
   auto& command_manager = _pRegistry->ctx().get<CommandManager>();
-  auto& console_context = _pRegistry->ctx().get<ConsoleContext>();
+  auto& dispatcher = _pRegistry->ctx().get<entt::dispatcher>();
 
   // on enregistre la commande exit qui permettra de quitter le jeu
   // chaque commande commence par le symbole $
   // interprétation des commandes dans DevConsole
   // ça sera toujours la même boucle
-  std::string helper = "?> $exit --> quit to desktop";
+  std::string helper = "$exit --> doesn't need args";
   command_manager.Register(Command{
     .name = "exit",
     .helper = helper,
-    .func = [this, helper](auto& args)
+    .func = [this, &dispatcher, helper](auto& args)
     {
-      try {
+      try 
+      {
         // s'il y a des arguments alors on renvoit une erreur sinon on quitte le program
-        if (!args.empty()) throw std::out_of_range("[Engine] $exit doesn't accept args");
+        if (!args.empty()) 
+          throw std::out_of_range("[Engine] $exit doesn't accept args");
         this->_isRunning = false;
       } 
       // la dite erreur
       catch (const std::out_of_range &e) 
       {
-        _pDevConsole->UpdateHistory(helper); // affiche le helper dans la console développeur
+        dispatcher.enqueue(DevConsoleMessageEvent{
+          .level = DebugLevel::WARNING,
+          .buffer = helper,
+        }); // affiche le helper dans la console développeur
         std::cerr << e.what() << "\n"; // afficher la raison pour laquelle la commande n'a pas été exécuté, coté code
       }
     }
@@ -147,14 +156,14 @@ void Engine::registerCommands()
 
 
   // activer/désactiver le fullscreen
-  helper = "?> $fullscreen <toggle> -- toggle must be 0 or 1 --> toggle fullscreen";
+  helper = "$fullscreen <toggle> --> 'toggle' must be 0 or 1";
   command_manager.Register(Command{
     .name = "fullscreen",
     .helper = helper,
-    .func = [this, helper, &console_context](auto& args)
+    .func = [this, &dispatcher, helper](auto& args)
     {
       try {
-        if (args.size() > 1) throw std::out_of_range("[Engine] $fullscreen accepts only 1 arg");
+        if (args.size() != 1) throw std::out_of_range("[Engine] $fullscreen needs only 1 arg");
         
         size_t last_valid_index;
         int toggle_fullscreen = std::stoi(args[0], &last_valid_index);
@@ -165,12 +174,18 @@ void Engine::registerCommands()
       // la dite erreur
       catch (const std::out_of_range& e) 
       {
-        console_context.helperBuffer.insert_or_assign("fullscreen", helper);
+        dispatcher.enqueue(DevConsoleMessageEvent{
+          .level = DebugLevel::WARNING,
+          .buffer = helper,
+        });
         std::cerr << e.what() << "\n";
       }
       catch (const std::invalid_argument& e)
       {
-        console_context.helperBuffer.insert_or_assign("fullscreen", helper);
+        dispatcher.enqueue(DevConsoleMessageEvent{
+          .level = DebugLevel::WARNING,
+          .buffer = helper,
+        });
         std::cerr << e.what() << "\n";
       }
     }
@@ -182,26 +197,33 @@ void Engine::registerCommands()
 void Engine::registerHelpCommand()
 {
   auto& command_manager = _pRegistry->ctx().get<CommandManager>();
-  auto& console_context = _pRegistry->ctx().get<ConsoleContext>();
-  std::string helper = "?> $help --> display available commands";
+  auto& dispatcher = _pRegistry->ctx().get<entt::dispatcher>();
+
+  std::string helper = "$help --> doesn't need args";
   command_manager.Register(Command{
     .name = "help",
     .helper = helper,
-    .func = [this, helper, &command_manager, &console_context](auto& args)
+    .func = [&command_manager, &dispatcher, helper](auto& args)
     {
       try {
         // s'il y a des arguments alors on renvoit une erreur sinon on quitte le program
         if (!args.empty()) throw std::out_of_range("[Engine] $help doesn't accept args");
         
-        for (const auto& h: command_manager.GetCommands()) 
+        for (const auto& cmd: command_manager.GetCommands()) 
         {
-          console_context.helperBuffer.insert_or_assign("help", h.second.helper);
-        }
+          dispatcher.enqueue(DevConsoleMessageEvent{
+            .level = DebugLevel::NONE,
+            .buffer = cmd.second.helper,
+          });
+        }        
       } 
       // la dite erreur
       catch (const std::out_of_range &e) 
       {
-        console_context.helperBuffer.insert_or_assign("help", helper); // affiche le helper dans la console développeur
+        dispatcher.enqueue(DevConsoleMessageEvent{
+          .level = DebugLevel::WARNING,
+          .buffer = helper,
+        }); // affiche le helper dans la console développeur
         std::cerr << e.what() << "\n"; // afficher la raison pour laquelle la commande n'a pas été exécuté, coté code
       }
     }

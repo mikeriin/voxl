@@ -1,8 +1,6 @@
 #include "graphics/renderer.h"
 
 
-#include <entt/signal/fwd.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
 #include <iostream>
 #include <vector>
 
@@ -12,20 +10,22 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_sdl3.h>
 #include <imgui/imgui_impl_opengl3.h>
+#include <entt/entt.hpp>
+using namespace entt::literals;
 
-#include "core/console_context.h"
 #include "core/engine_context.h"
 #include "core/command_manager.h"
 #include "core/command.h"
+#include "core/resource_manager.h"
 #include "platform/window.h"
 #include "events/resize_event.h"
+#include "events/dev_console_message_event.h"
 #include "utils/get_transform_matrix.h"
 #include "components/text.h"
 #include "components/text_mesh.h"
 #include "components/mesh.h"
 #include "components/transform.h"
 #include "resources/shader.h"
-#include "loaders/shader_loader.h"
 
 
 Renderer::Renderer(entt::registry* registry, Window* window)
@@ -89,12 +89,13 @@ bool Renderer::Init()
   glViewport(0, 0, engine_context.screenInfo.width, engine_context.screenInfo.height);
   glClearColor(0.773f, 0.729f, 1.0f, 1.0f);
 
-  registerCommands();
-
-  _pTextShader = new Shader{ LoadShader("msdf_font") };
-  _pUIShader = new Shader{ LoadShader("ui") };
-
+  auto& resource_manager = _pRegistry->ctx().get<ResourceManager>();
+  resource_manager.LoadByID<Shader>("shader_msdf_font"_hs, "msdf_font");
+  resource_manager.LoadByID<Shader>("shader_ui"_hs, "ui");
+  
   _ortho = glm::ortho(0.0f, (float)engine_context.screenInfo.width, 0.0f, (float)engine_context.screenInfo.height, -1.0f, 1.0f);
+  
+  registerCommands();
 
   return true;
 }
@@ -108,7 +109,7 @@ void Renderer::BeginFrame()
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplSDL3_NewFrame();
   ImGui::NewFrame();
-  
+
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -125,36 +126,40 @@ void Renderer::EndFrame()
 
 void Renderer::Render()
 {
+  auto& resource_manager = _pRegistry->ctx().get<ResourceManager>();
+  const auto& textShader = resource_manager.Get<Shader>("shader_msdf_font").handle();
+  const auto& uiShader = resource_manager.Get<Shader>("shader_ui").handle();
+
   // afficher l'UI à la fin
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_CULL_FACE);
 
-  glUseProgram(_pTextShader->program);
-  glUniformMatrix4fv(glGetUniformLocation(_pTextShader->program, "u_projection"), 1, GL_FALSE, &_ortho[0][0]);
-  glUseProgram(_pUIShader->program);
-  glUniformMatrix4fv(glGetUniformLocation(_pUIShader->program, "u_projection"), 1, GL_FALSE, &_ortho[0][0]);
+  glUseProgram(textShader->program);
+  glUniformMatrix4fv(glGetUniformLocation(textShader->program, "u_projection"), 1, GL_FALSE, &_ortho[0][0]);
+  glUseProgram(uiShader->program);
+  glUniformMatrix4fv(glGetUniformLocation(uiShader->program, "u_projection"), 1, GL_FALSE, &_ortho[0][0]);
   glUseProgram(0);
   
-  _pRegistry->view<Text, TextMesh>().each([this](auto entity, Text& text, TextMesh& textMesh)
+  _pRegistry->view<Text, TextMesh>().each([this, &textShader, &uiShader](auto entity, Text& text, TextMesh& textMesh)
   {
     if (text.text.empty()) return;
 
     if (_pRegistry->all_of<Mesh, Transform>(entity))
     {
-      glUseProgram(_pUIShader->program);
+      glUseProgram(uiShader->program);
       auto model = GetTransformMatrix(_pRegistry->get<Transform>(entity));
-      glUniformMatrix4fv(glGetUniformLocation(_pUIShader->program, "u_model"), 1, GL_FALSE, &model[0][0]);
+      glUniformMatrix4fv(glGetUniformLocation(uiShader->program, "u_model"), 1, GL_FALSE, &model[0][0]);
       Mesh& mesh = _pRegistry->get<Mesh>(entity);
       glBindVertexArray(mesh.vao);
       glDrawElements(GL_TRIANGLES, mesh.indiceCount, GL_UNSIGNED_INT, nullptr);
       glUseProgram(0);
     }
 
-    glUseProgram(_pTextShader->program);
+    glUseProgram(textShader->program);
     glBindTextureUnit(0, text.pFont->textureHandle);
-    glUniform1f(glGetUniformLocation(_pTextShader->program, "pxRange"), text.pFont->pixelRange);
+    glUniform1f(glGetUniformLocation(textShader->program, "pxRange"), text.pFont->pixelRange);
     glBindVertexArray(textMesh.vao);
     glDrawElements(GL_TRIANGLES, textMesh.indices.size(), GL_UNSIGNED_INT, nullptr);
     glUseProgram(0);
@@ -165,14 +170,13 @@ void Renderer::Render()
 void Renderer::registerCommands()
 {
   auto& command_manager = _pRegistry->ctx().get<CommandManager>();
-  auto& console_context = _pRegistry->ctx().get<ConsoleContext>();
+  auto& dispatcher = _pRegistry->ctx().get<entt::dispatcher>();
 
-  std::string helper = "?> $set_clear_color <red> <green> <blue> -- color values must be between 0 and 1 --> change GL clear color buffer";
-  std::string name = "set_clear_color";
+  std::string helper = "$set_clear_color <red> <green> <blue> --> color values must be between 0 and 1";
   command_manager.Register(Command{
-    .name = name,
+    .name = "set_clear_color",
     .helper = helper,
-    .func = [name, helper, &console_context](auto& args)
+    .func = [&dispatcher, helper](auto& args)
     {
       try {
         if (args.size() != 3) throw std::out_of_range("[Engine] $set_clear_color needs 3 args");
@@ -190,24 +194,29 @@ void Renderer::registerCommands()
       // la dite erreur
       catch (const std::out_of_range& e) 
       {
-        console_context.helperBuffer.insert_or_assign(name, helper);
+        dispatcher.enqueue(DevConsoleMessageEvent{
+          .level = DebugLevel::WARNING,
+          .buffer = helper,
+        });
         std::cerr << e.what() << "\n";
       }
       catch (const std::invalid_argument& e)
       {
-        console_context.helperBuffer.insert_or_assign(name, helper);
+        dispatcher.enqueue(DevConsoleMessageEvent{
+          .level = DebugLevel::WARNING,
+          .buffer = helper,
+        });
         std::cerr << e.what() << "\n";
       }
     }
   });
 
 
-  helper = "?> $set_clear_color_rgb <red> <green> <blue> -- color values must be between 0 and 255 --> change GL clear color buffer";
- name = "set_clear_color_rgb";
+  helper = "$set_clear_color_rgb <red> <green> <blue> --> color values must be between 0 and 255";
   command_manager.Register(Command{
-    .name = name,
+    .name = "set_clear_color_rgb",
     .helper = helper,
-    .func = [name, helper, &console_context](auto& args)
+    .func = [&dispatcher, helper](auto& args)
     {
       try {
         if (args.size() != 3) throw std::out_of_range("[Engine] $set_clear_color_rgb needs 3 args");
@@ -225,12 +234,18 @@ void Renderer::registerCommands()
       // la dite erreur
       catch (const std::out_of_range& e) 
       {
-        console_context.helperBuffer.insert_or_assign(name, helper);
+        dispatcher.enqueue(DevConsoleMessageEvent{
+          .level = DebugLevel::WARNING,
+          .buffer = helper,
+        });
         std::cerr << e.what() << "\n";
       }
       catch (const std::invalid_argument& e)
       {
-        console_context.helperBuffer.insert_or_assign(name, helper);
+        dispatcher.enqueue(DevConsoleMessageEvent{
+          .level = DebugLevel::WARNING,
+          .buffer = helper,
+        });
         std::cerr << e.what() << "\n";
       }
     }

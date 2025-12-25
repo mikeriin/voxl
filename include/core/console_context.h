@@ -2,13 +2,8 @@
 #define VOXL_CONSOLE_CONTEXT_H
 
 
-#include <unordered_map>
-#include <string>
-
-
 struct ConsoleContext
 {
-  std::unordered_map<std::string, std::string> helperBuffer;
   bool isOpen = false;
 };
 
