@@ -22,6 +22,7 @@ using namespace entt::literals;
 #include "core/command_manager.h"
 #include "core/console_context.h"
 #include "core/resource_manager.h"
+#include "core/scene.h"
 #include "platform/window.h"
 #include "platform/input_handler.h"
 #include "graphics/renderer.h"
@@ -50,6 +51,7 @@ Engine::Engine() : _isRunning(true) {
   _pWindow = std::make_unique<Window>(_pRegistry.get());
   _pRenderer = std::make_unique<Renderer>(_pRegistry.get(), _pWindow.get());
   _pDevConsole = std::make_unique<DevConsole>(_pRegistry.get());
+  _pScene = std::make_unique<Scene>(_pRegistry.get());
 }
 
 Engine::~Engine() 
@@ -93,9 +95,11 @@ void Engine::Run() {
     timer_sys.Update(*_pRegistry, delta_time);
     
     _pRenderer->BeginFrame();
+    _pScene->DisplayGraph();
     // on utilise imgui pour afficher la console donc l'update est appelé ici
     // BeginFrame initialise la frame ingui et doit impérativement être appelé avant toutes autres fonctions d'affichage imgui
-    if (console_context.isOpen) _pDevConsole->OpenDevConsole(&console_context.isOpen); 
+    if (console_context.isOpen) _pDevConsole->OpenDevConsole(&console_context.isOpen);
+
     _pRenderer->Render();
     _pRenderer->EndFrame();
 
@@ -116,6 +120,12 @@ bool Engine::init() {
     return false;
   
   registerCommands();
+
+  for (size_t i = 0; i < 100; i++) 
+  {
+    auto e = _pRegistry->create();
+  }
+
   return true;
 }
 

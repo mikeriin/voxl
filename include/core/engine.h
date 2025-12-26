@@ -12,6 +12,7 @@
 class Window;
 class Renderer;
 class DevConsole;
+class Scene;
 
 struct GameContext;
 struct CloseEvent;
@@ -34,6 +35,7 @@ private:
   std::unique_ptr<Window> _pWindow;
   std::unique_ptr<Renderer> _pRenderer;
   std::unique_ptr<DevConsole> _pDevConsole;
+  std::unique_ptr<Scene> _pScene;
 
   Font _font;
 
