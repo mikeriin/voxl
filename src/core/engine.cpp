@@ -1,6 +1,4 @@
 #include "core/engine.h"
-#include "resources/font.h"
-#include <SDL3/SDL_video.h>
 #define STB_IMAGE_IMPLEMENTATION
 #define TINYOBJLOADER_IMPLEMENTATION
 
@@ -12,15 +10,16 @@
 
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_video.h>
 #include <entt/entt.hpp>
 using namespace entt::literals;
+#include <stb_image.h>
 
 #include "core/engine_context.h"
 #include "core/dev_console.h"
 #include "core/command.h"
 #include "core/command_manager.h"
 #include "core/command_manager.h"
-#include "core/console_context.h"
 #include "core/resource_manager.h"
 #include "core/scene.h"
 #include "platform/window.h"
@@ -32,21 +31,33 @@ using namespace entt::literals;
 #include "events/dev_console_message_event.h"
 #include "systems/user_control_system.h"
 #include "systems/timer_system.h"
+#include "components/transform.h"
+#include "components/rect_transform.h"
+#include "components/text.h"
+#include "components/ui_node.h"
+#include "components/text_mesh.h"
+#include "resources/font.h"
+#include "utils/game_state.h"
 
 
 Engine::Engine() : _isRunning(true) {
   _pRegistry = std::make_unique<entt::registry>();
 
+  registerComponents();
+
   _pRegistry->ctx().emplace<ResourceManager>();
   _pRegistry->ctx().emplace<InputHandler>();
   _pRegistry->ctx().emplace<CommandManager>();
-  auto& console_context = _pRegistry->ctx().emplace<ConsoleContext>();
-  // console_context.isOpen = false;
   
   auto& dispatcher = _pRegistry->ctx().emplace<entt::dispatcher>();
   auto &engine_context = _pRegistry->ctx().emplace<EngineContext>();
   dispatcher.sink<CloseEvent>().connect<&Engine::onClose>(this);
   dispatcher.sink<GameStateChangeEvent>().connect<&Engine::onGameStateChange>(this);
+
+  // TODO être en mode editor par défaut en debug et in_game en release
+  dispatcher.enqueue<GameStateChangeEvent>(GameStateChangeEvent{
+    .newState = GameState::EDITOR
+  });
 
   _pWindow = std::make_unique<Window>(_pRegistry.get());
   _pRenderer = std::make_unique<Renderer>(_pRegistry.get(), _pWindow.get());
@@ -61,7 +72,6 @@ Engine::~Engine()
 
 void Engine::Run() {
   auto& engine_context = _pRegistry->ctx().get<EngineContext>();
-  auto& console_context = _pRegistry->ctx().get<ConsoleContext>();
   auto& dispatcher = _pRegistry->ctx().emplace<entt::dispatcher>();
 
   if (!init()) {
@@ -95,15 +105,25 @@ void Engine::Run() {
     timer_sys.Update(*_pRegistry, delta_time);
     
     _pRenderer->BeginFrame();
-    _pScene->DisplayGraph();
-    // on utilise imgui pour afficher la console donc l'update est appelé ici
-    // BeginFrame initialise la frame ingui et doit impérativement être appelé avant toutes autres fonctions d'affichage imgui
-    if (console_context.isOpen) _pDevConsole->OpenDevConsole(&console_context.isOpen);
+
+    // affichage avec imgui
+    // toujours après NewFrame et avant Render !
+    bool is_scene_graph_open = (engine_context.currentState == GameState::EDITOR);
+    if (is_scene_graph_open) _pScene->DisplayGraph(&is_scene_graph_open);
+    bool is_console_open = (engine_context.currentState == GameState::CONSOLE);
+    if (is_console_open) _pDevConsole->OpenDevConsole(&is_console_open);
 
     _pRenderer->Render();
     _pRenderer->EndFrame();
 
     dispatcher.update();
+
+    // TODO Supprimer propement les entités
+    if (!engine_context.entitiesToDelete.empty())
+    {
+      for (auto entity: engine_context.entitiesToDelete) _pRegistry->destroy(entity);
+      engine_context.entitiesToDelete.clear();
+    }
   }
 }
 
@@ -114,17 +134,14 @@ bool Engine::init() {
     return false;
 
   auto& resource_manager = _pRegistry->ctx().get<ResourceManager>();
-  resource_manager.LoadByID<Font>("font_roboto_mono"_hs, "roboto_mono");
+  resource_manager.Load<Font>("Roboto Mono", "roboto_mono");
+  // resource_manager.Load<Font>("Google Sans Code", "google_sans_code");
+  // resource_manager.Load<Font>("Roboto", "roboto");
   
   if (!_pDevConsole->Init())
     return false;
   
   registerCommands();
-
-  for (size_t i = 0; i < 100; i++) 
-  {
-    auto e = _pRegistry->create();
-  }
 
   return true;
 }
@@ -241,6 +258,19 @@ void Engine::registerHelpCommand()
 }
 
 
+void Engine::registerComponents()
+{
+  //! obligatoire pour lire registry comme un argument dans invoke, le type registry doit être connu, les pointeurs sont mieux géré par meta_any
+  entt::meta_factory<entt::registry*>{}.type("registry_ptr"_hs);
+
+  EditorComponent<Transform>::Register();
+  EditorComponent<RectTransform>::Register();
+  EditorComponent<Text>::Register();
+  EditorComponent<UINode>::Register();
+  EditorComponent<TextMesh>::Register();
+}
+
+
 void Engine::onClose(const CloseEvent &e) {
   std::cout << "[Engine] " << e.name << " called\n";
   _isRunning = !e.shoulClose;
@@ -249,8 +279,11 @@ void Engine::onClose(const CloseEvent &e) {
 
 void Engine::onGameStateChange(const GameStateChangeEvent& e)
 {
-  std::cout << "[Engine] " << e.name << " called => new state: ";
+  auto& engine_context = _pRegistry->ctx().get<EngineContext>();
+  engine_context.lastState = engine_context.currentState;
+  engine_context.currentState = e.newState;
 
+  std::cout << "[Engine] " << e.name << " called => new state: ";
   switch (e.newState) 
   {
   case GameState::IN_GAME:
@@ -258,11 +291,13 @@ void Engine::onGameStateChange(const GameStateChangeEvent& e)
     SDL_StopTextInput(_pWindow->GetNativeWindow());
   break;
 
+  case GameState::EDITOR:
+    std::cout << "EDITOR\n";
+  break;
+
   case GameState::CONSOLE:
     std::cout << "CONSOLE\n";
     SDL_StartTextInput(_pWindow->GetNativeWindow());
   break;
   }
-
-  _pRegistry->ctx().get<EngineContext>().currentState = e.newState;
 }

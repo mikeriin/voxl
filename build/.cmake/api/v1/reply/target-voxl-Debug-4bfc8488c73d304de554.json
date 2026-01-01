@@ -168,7 +168,9 @@
 				11,
 				12,
 				13,
-				14
+				14,
+				15,
+				16
 			]
 		}
 	],
@@ -295,14 +297,16 @@
 				11,
 				12,
 				13,
-				14
+				14,
+				15,
+				16
 			]
 		},
 		{
 			"name" : "",
 			"sourceIndexes" : 
 			[
-				15
+				17
 			]
 		}
 	],
@@ -336,6 +340,18 @@
 			"backtrace" : 2,
 			"compileGroupIndex" : 0,
 			"path" : "src/graphics/renderer.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "src/loaders/font_loader.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "src/loaders/texture_loader.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{

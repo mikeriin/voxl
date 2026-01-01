@@ -6,9 +6,11 @@
 #include <any>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include <entt/entt.hpp>
 
+#include "loaders/font_loader.h"
 #include "resources/traits.h"
 
 
@@ -31,8 +33,12 @@ public:
   template<typename Resource>
   entt::resource<Resource> GetByID(entt::id_type id);
 
+  inline auto& GetFontCache() { return getCacheInternal<Font, FontLoader>(); }
+  inline std::vector<std::string>& GetFontNames() { return _names; }
+
 private:
   std::unordered_map<entt::id_type, std::any> _caches;
+  std::vector<std::string> _names;
 
   template<typename Resource, typename Loader>
   entt::resource_cache<Resource, Loader>& getCacheInternal(); 
@@ -42,6 +48,7 @@ private:
 template<typename Resource, typename... Args>
 inline auto ResourceManager::Load(const std::string& name, Args&&... args)
 {
+  _names.push_back(name);
   const auto id = entt::hashed_string(name.c_str());
   return LoadByID<Resource>(id, std::forward<Args>(args)...);
 }

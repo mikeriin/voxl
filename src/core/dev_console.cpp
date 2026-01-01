@@ -72,6 +72,8 @@ void DevConsole::OpenDevConsole(bool* pOpen)
     
     ImGui::PushItemWidth(-1);
     
+    ImGui::Separator();
+
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
     ImGui::PushStyleColor(ImGuiCol_TextDisabled, ImVec4(1.0f, 1.0f, 1.0f, 0.15f));
     ImGui::PushStyleColor(ImGuiCol_InputTextCursor, ImVec4(1.0f, 1.0f, 1.0f, 0.3f));

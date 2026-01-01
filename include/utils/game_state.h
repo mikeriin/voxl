@@ -6,6 +6,7 @@ enum class GameState
 {
   IN_GAME,
   CONSOLE,
+  EDITOR,
 };
 
 

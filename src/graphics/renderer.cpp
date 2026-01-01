@@ -26,6 +26,7 @@ using namespace entt::literals;
 #include "components/mesh.h"
 #include "components/transform.h"
 #include "resources/shader.h"
+#include "resources/texture.h"
 
 
 Renderer::Renderer(entt::registry* registry, Window* window)
@@ -76,6 +77,19 @@ bool Renderer::Init()
     return false;
   }
 
+  const GLubyte* rendererStr = glGetString(GL_RENDERER); 
+  const GLubyte* vendorStr = glGetString(GL_VENDOR);
+  const GLubyte* versionStr = glGetString(GL_VERSION);
+
+  auto& dispatcher = _pRegistry->ctx().get<entt::dispatcher>();
+
+  dispatcher.enqueue<DevConsoleMessageEvent>(DevConsoleMessageEvent{
+    .level = DebugLevel::INFO,
+    .buffer = "[OpenGL]\nRenderer:" + std::string(reinterpret_cast<const char*>(rendererStr)) 
+      + "\nVendor:" + std::string(reinterpret_cast<const char*>(vendorStr))
+      + "\nVersion:" + std::string(reinterpret_cast<const char*>(versionStr))
+  });
+
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
@@ -92,6 +106,8 @@ bool Renderer::Init()
   auto& resource_manager = _pRegistry->ctx().get<ResourceManager>();
   resource_manager.LoadByID<Shader>("shader_msdf_font"_hs, "msdf_font");
   resource_manager.LoadByID<Shader>("shader_ui"_hs, "ui");
+
+  resource_manager.LoadByID<Texture>("tex_icon"_hs, "ui/icon_close.png");
   
   _ortho = glm::ortho(0.0f, (float)engine_context.screenInfo.width, 0.0f, (float)engine_context.screenInfo.height, -1.0f, 1.0f);
   

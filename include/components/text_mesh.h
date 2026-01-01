@@ -5,6 +5,12 @@
 #include <vector>
 
 #include <glm/glm.hpp>
+#include <entt/entt.hpp>
+using namespace entt::literals;
+#include <imgui/imgui.h>
+
+#include "components/editor_component.h"
+#include "utils/draw_component_header.h"
 
 
 static constexpr int MAX_TEXT_LENGTH = 2048;
@@ -27,6 +33,33 @@ struct TextMesh
   unsigned int ebo;
 
   void* pBuffer;
+};
+
+
+template<>
+struct EditorComponent<TextMesh>
+{
+  static void Display(TextMesh& mesh, entt::registry* registry)
+  {
+    ImGui::PushID(&mesh);
+
+    DrawComponentHeader("\tText Mesh");
+
+    ImGui::PopID();
+  }
+
+  static void Register()
+  {
+    entt::meta_factory<TextMesh>{}
+      .type(entt::type_id<TextMesh>().hash())
+      .data<&TextMesh::vertices>("vertices"_hs)
+      .data<&TextMesh::indices>("indices"_hs)
+      .data<&TextMesh::vao>("vao"_hs)
+      .data<&TextMesh::vbo>("vbo"_hs)
+      .data<&TextMesh::ebo>("ebo"_hs)
+      .data<&TextMesh::pBuffer>("p_buffer"_hs)
+      .func<&EditorComponent<TextMesh>::Display>("display"_hs);
+  }
 };
 
 

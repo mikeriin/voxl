@@ -2,6 +2,8 @@
 #define VOXL_ENGINE_CONTEXT_H
 
 
+#include <vector>
+
 #include <entt/entt.hpp>
 
 #include "utils/screen_info.h"
@@ -10,7 +12,9 @@
 struct EngineContext
 {
   ScreenInfo screenInfo;
+  GameState lastState;
   GameState currentState;
+  std::vector<entt::entity> entitiesToDelete;
 };
 
 

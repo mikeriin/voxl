@@ -31,6 +31,18 @@
 },
 {
   "directory": "E:/Projects/VoxL/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DENKITS_DLL=1 -DENKITS_TASK_PRIORITIES_NUM=3 -IE:/Projects/VoxL/include -IE:/Projects/VoxL/include/thirdparty -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include/enkiTS -O0 -g -Xclang -gcodeview -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\voxl.dir\\src\\loaders\\font_loader.cpp.obj -c E:\\Projects\\VoxL\\src\\loaders\\font_loader.cpp",
+  "file": "E:/Projects/VoxL/src/loaders/font_loader.cpp",
+  "output": "E:/Projects/VoxL/build/CMakeFiles/voxl.dir/src/loaders/font_loader.cpp.obj"
+},
+{
+  "directory": "E:/Projects/VoxL/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DENKITS_DLL=1 -DENKITS_TASK_PRIORITIES_NUM=3 -IE:/Projects/VoxL/include -IE:/Projects/VoxL/include/thirdparty -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include/enkiTS -O0 -g -Xclang -gcodeview -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\voxl.dir\\src\\loaders\\texture_loader.cpp.obj -c E:\\Projects\\VoxL\\src\\loaders\\texture_loader.cpp",
+  "file": "E:/Projects/VoxL/src/loaders/texture_loader.cpp",
+  "output": "E:/Projects/VoxL/build/CMakeFiles/voxl.dir/src/loaders/texture_loader.cpp.obj"
+},
+{
+  "directory": "E:/Projects/VoxL/build",
   "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DENKITS_DLL=1 -DENKITS_TASK_PRIORITIES_NUM=3 -IE:/Projects/VoxL/include -IE:/Projects/VoxL/include/thirdparty -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include -isystem E:/Projects/VoxL/build/vcpkg_installed/x64-windows/include/enkiTS -O0 -g -Xclang -gcodeview -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\voxl.dir\\src\\platform\\input_handler.cpp.obj -c E:\\Projects\\VoxL\\src\\platform\\input_handler.cpp",
   "file": "E:/Projects/VoxL/src/platform/input_handler.cpp",
   "output": "E:/Projects/VoxL/build/CMakeFiles/voxl.dir/src/platform/input_handler.cpp.obj"
